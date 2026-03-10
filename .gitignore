@@ -1,0 +1,48 @@
+# Secrets / environment
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Testing / coverage / cache
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# Logs
+*.log
+
+# Editors / IDE
+.vscode/
+.idea/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Model artifacts / experiment outputs
+models/checkpoints/
+models/tensorboard/
+models/best/
+
+# Optional local data artifacts if regenerated automatically
+# Uncomment these later if you do NOT want generated pipeline outputs in Git
+# data/pricing/aws_pricing.json
+# data/pricing/aws_actual_costs.json
+# data/carbon/carbon_intensity.json

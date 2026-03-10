@@ -1,0 +1,71 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: cloudosworkloads.cloudos.io
+spec:
+  group: cloudos.io
+  scope: Namespaced
+  names:
+    kind:     CloudOSWorkload
+    plural:   cloudosworkloads
+    singular: cloudosworkload
+    shortNames: [cow]
+  versions:
+    - name: v1alpha1
+      served:  true
+      storage: true
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: Phase
+          type: string
+          jsonPath: .status.phase
+        - name: Cloud
+          type: string
+          jsonPath: .status.assignedCloud
+        - name: Region
+          type: string
+          jsonPath: .status.assignedRegion
+        - name: Cost$/hr
+          type: number
+          jsonPath: .status.estimatedCostPerHr
+        - name: Savings%
+          type: number
+          jsonPath: .status.costSavingsPct
+        - name: Age
+          type: date
+          jsonPath: .metadata.creationTimestamp
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: [cpuRequest, memoryRequestGb, expectedDurationHours]
+              properties:
+                cpuRequest:             { type: number,  minimum: 0.1 }
+                memoryRequestGb:        { type: number,  minimum: 0.5 }
+                gpuCount:               { type: integer, minimum: 0   }
+                storageGb:              { type: number,  minimum: 1.0 }
+                networkBandwidthGbps:   { type: number,  minimum: 0.1 }
+                expectedDurationHours:  { type: number,  minimum: 0.01 }
+                priority:               { type: integer, minimum: 1, maximum: 4 }
+                slaLatencyMs:           { type: number,  minimum: 1.0 }
+                workloadType:
+                  type: string
+                  enum: [batch, realtime, ml_training, web_service]
+                isSpotTolerant:         { type: boolean }
+            status:
+              type: object
+              properties:
+                phase:
+                  type: string
+                  enum: [Pending, Scheduled, Running, Completed, Failed]
+                decisionId:         { type: string }
+                assignedCloud:      { type: string }
+                assignedRegion:     { type: string }
+                instanceType:       { type: string }
+                estimatedCostPerHr: { type: number }
+                costSavingsPct:     { type: number }
+                carbonSavingsPct:   { type: number }
+                scheduledAt:        { type: string, format: date-time }

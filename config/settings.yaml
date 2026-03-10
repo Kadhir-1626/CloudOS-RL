@@ -1,0 +1,76 @@
+app:
+  name: CloudOS-RL
+  version: 1.0.0
+  debug: false
+
+api:
+  host: 0.0.0.0
+  port: 8000
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://localhost:3001"
+
+training:
+  n_envs: 4
+  total_timesteps: 2000000
+  learning_rate: 0.0003
+  n_steps: 2048
+  batch_size: 512
+  n_epochs: 10
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.01
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+  model_save_dir: models
+  max_episode_steps: 1000
+
+environment:
+  max_episode_steps: 1000
+  pricing_normalization: 10.0
+  carbon_normalization: 600.0
+  latency_normalization: 1000.0
+  pricing_fallback_path: data/pricing/aws_pricing.json
+
+reward_weights:
+  alpha: 0.35
+  beta: 0.25
+  gamma: 0.20
+  delta: 0.15
+  epsilon: 0.05
+
+# =============================================================================
+# Data Pipeline Configuration (Module G)
+# =============================================================================
+data_pipeline:
+
+  # Refresh intervals in seconds
+  pricing_refresh_sec: 3600    # 1 hour  — EC2 on-demand + spot prices
+  carbon_refresh_sec:  900     # 15 min  — electricity grid carbon intensity
+  cur_refresh_sec:     3600    # 1 hour  — AWS Cost Explorer actual spend
+
+  # Output file paths (written atomically — safe for concurrent readers)
+  pricing_output_path:      data/pricing/aws_pricing.json
+  actual_costs_output_path: data/pricing/aws_actual_costs.json
+  carbon_output_path:       data/carbon/carbon_intensity.json
+
+  # Anomaly detection: flag region if 7-day daily spend > 30-day avg by this %
+  anomaly_threshold_pct: 50.0
+
+  # Electricity Maps API key (optional — also readable from env var)
+  # If not set, static empirical carbon values are used (still valid for RL training)
+  # Get free key at: https://www.electricitymaps.com/free-tier
+  # electricity_maps_api_key: ""
+
+kafka:
+  bootstrap_servers: localhost:9092
+  partitions: 3
+  replication: 1
+  group_id: cloudos-consumers
+
+aws:
+  region: us-east-1
+
+logging:
+  level: INFO
