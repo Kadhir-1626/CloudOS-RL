@@ -41,33 +41,38 @@ reward_weights:
   epsilon: 0.05
 
 # =============================================================================
-# Data Pipeline Configuration (Module G)
+# Data Pipeline (Module G)
 # =============================================================================
 data_pipeline:
-
-  # Refresh intervals in seconds
-  pricing_refresh_sec: 3600    # 1 hour  — EC2 on-demand + spot prices
-  carbon_refresh_sec:  900     # 15 min  — electricity grid carbon intensity
-  cur_refresh_sec:     3600    # 1 hour  — AWS Cost Explorer actual spend
-
-  # Output file paths (written atomically — safe for concurrent readers)
+  pricing_refresh_sec:      3600
+  carbon_refresh_sec:       900
+  cur_refresh_sec:          3600
   pricing_output_path:      data/pricing/aws_pricing.json
   actual_costs_output_path: data/pricing/aws_actual_costs.json
   carbon_output_path:       data/carbon/carbon_intensity.json
-
-  # Anomaly detection: flag region if 7-day daily spend > 30-day avg by this %
-  anomaly_threshold_pct: 50.0
-
-  # Electricity Maps API key (optional — also readable from env var)
-  # If not set, static empirical carbon values are used (still valid for RL training)
-  # Get free key at: https://www.electricitymaps.com/free-tier
-  # electricity_maps_api_key: ""
+  anomaly_threshold_pct:    50.0
 
 kafka:
   bootstrap_servers: localhost:9092
   partitions: 3
   replication: 1
   group_id: cloudos-consumers
+
+# =============================================================================
+# Prometheus (Module D)
+# =============================================================================
+prometheus:
+  host: 0.0.0.0
+  port: 9090
+
+# =============================================================================
+# Kafka → Prometheus Bridge (Module D)
+# =============================================================================
+bridge:
+  poll_timeout_seconds:           1.0
+  max_messages_per_poll:          100
+  pipeline_metrics_push_interval: 30
+  decision_window_seconds:        60
 
 aws:
   region: us-east-1

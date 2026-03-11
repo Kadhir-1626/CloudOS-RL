@@ -5,7 +5,7 @@
     "gco2_per_kwh": 415.0,
     "renewable_pct": 28.5,
     "data_source": "static_fallback",
-    "fetched_at": "2026-03-10T17:00:28.908144+00:00",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
     "raw_datetime": ""
   },
   "us-east-2": {
@@ -14,7 +14,7 @@
     "gco2_per_kwh": 432.0,
     "renewable_pct": 25.1,
     "data_source": "static_fallback",
-    "fetched_at": "2026-03-10T17:00:28.908144+00:00",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
     "raw_datetime": ""
   },
   "us-west-1": {
@@ -23,7 +23,7 @@
     "gco2_per_kwh": 222.0,
     "renewable_pct": 52.3,
     "data_source": "static_fallback",
-    "fetched_at": "2026-03-10T17:00:28.908144+00:00",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
     "raw_datetime": ""
   },
   "us-west-2": {
@@ -32,7 +32,7 @@
     "gco2_per_kwh": 192.0,
     "renewable_pct": 64.8,
     "data_source": "static_fallback",
-    "fetched_at": "2026-03-10T17:00:28.908144+00:00",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
     "raw_datetime": ""
   },
   "eu-west-1": {
@@ -41,7 +41,7 @@
     "gco2_per_kwh": 316.0,
     "renewable_pct": 39.2,
     "data_source": "static_fallback",
-    "fetched_at": "2026-03-10T17:00:28.908144+00:00",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
     "raw_datetime": ""
   },
   "eu-west-2": {
@@ -50,7 +50,7 @@
     "gco2_per_kwh": 268.0,
     "renewable_pct": 44.6,
     "data_source": "static_fallback",
-    "fetched_at": "2026-03-10T17:00:28.908144+00:00",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
     "raw_datetime": ""
   },
   "eu-west-3": {
@@ -59,7 +59,7 @@
     "gco2_per_kwh": 58.0,
     "renewable_pct": 78.9,
     "data_source": "static_fallback",
-    "fetched_at": "2026-03-10T17:00:28.908144+00:00",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
     "raw_datetime": ""
   },
   "eu-central-1": {
@@ -68,7 +68,7 @@
     "gco2_per_kwh": 338.0,
     "renewable_pct": 38.1,
     "data_source": "static_fallback",
-    "fetched_at": "2026-03-10T17:00:28.908144+00:00",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
     "raw_datetime": ""
   },
   "eu-north-1": {
@@ -77,7 +77,7 @@
     "gco2_per_kwh": 42.0,
     "renewable_pct": 92.1,
     "data_source": "static_fallback",
-    "fetched_at": "2026-03-10T17:00:28.908144+00:00",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
     "raw_datetime": ""
   },
   "ap-southeast-1": {
@@ -86,7 +86,7 @@
     "gco2_per_kwh": 453.0,
     "renewable_pct": 18.4,
     "data_source": "static_fallback",
-    "fetched_at": "2026-03-10T17:00:28.908144+00:00",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
     "raw_datetime": ""
   },
   "ap-southeast-2": {
@@ -95,7 +95,7 @@
     "gco2_per_kwh": 618.0,
     "renewable_pct": 18.7,
     "data_source": "static_fallback",
-    "fetched_at": "2026-03-10T17:00:28.908144+00:00",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
     "raw_datetime": ""
   },
   "ap-northeast-1": {
@@ -104,7 +104,7 @@
     "gco2_per_kwh": 506.0,
     "renewable_pct": 22.3,
     "data_source": "static_fallback",
-    "fetched_at": "2026-03-10T17:00:28.908144+00:00",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
     "raw_datetime": ""
   },
   "ap-northeast-2": {
@@ -113,7 +113,7 @@
     "gco2_per_kwh": 512.0,
     "renewable_pct": 19.8,
     "data_source": "static_fallback",
-    "fetched_at": "2026-03-10T17:00:28.908144+00:00",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
     "raw_datetime": ""
   },
   "ap-south-1": {
@@ -122,7 +122,7 @@
     "gco2_per_kwh": 708.0,
     "renewable_pct": 11.9,
     "data_source": "static_fallback",
-    "fetched_at": "2026-03-10T17:00:28.908144+00:00",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
     "raw_datetime": ""
   },
   "ca-central-1": {
@@ -131,7 +131,7 @@
     "gco2_per_kwh": 89.0,
     "renewable_pct": 76.2,
     "data_source": "static_fallback",
-    "fetched_at": "2026-03-10T17:00:28.908144+00:00",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
     "raw_datetime": ""
   },
   "sa-east-1": {
@@ -140,7 +140,7 @@
     "gco2_per_kwh": 136.0,
     "renewable_pct": 62.4,
     "data_source": "static_fallback",
-    "fetched_at": "2026-03-10T17:00:28.908144+00:00",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
     "raw_datetime": ""
   }
 }

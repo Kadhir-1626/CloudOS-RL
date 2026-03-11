@@ -1,1 +1,744 @@
-{}
+{
+  "us-west-2": {
+    "c5.xlarge": 0.17,
+    "c5.xlarge:on_demand": 0.17,
+    "c5.xlarge:spot": 0.0757,
+    "c5.xlarge:savings_plan": 0.0935,
+    "c5.xlarge:reserved_1yr": 0.102,
+    "c5.xlarge:reserved_3yr": 0.068,
+    "c5.xlarge:blended": 0.17,
+    "c5.large": 0.085,
+    "c5.large:on_demand": 0.085,
+    "c5.large:spot": 0.0209,
+    "c5.large:savings_plan": 0.04675,
+    "c5.large:reserved_1yr": 0.051,
+    "c5.large:reserved_3yr": 0.034,
+    "c5.large:blended": 0.085,
+    "r5.large": 0.126,
+    "r5.large:on_demand": 0.126,
+    "r5.large:spot": 0.0403,
+    "r5.large:savings_plan": 0.0693,
+    "r5.large:reserved_1yr": 0.0756,
+    "r5.large:reserved_3yr": 0.0504,
+    "r5.large:blended": 0.126,
+    "t3.medium": 0.0416,
+    "t3.medium:on_demand": 0.0416,
+    "t3.medium:spot": 0.0163,
+    "t3.medium:savings_plan": 0.02288,
+    "t3.medium:reserved_1yr": 0.02496,
+    "t3.medium:reserved_3yr": 0.01664,
+    "t3.medium:blended": 0.0416,
+    "on_demand_per_vcpu_hr": 0.0422,
+    "_nested": {
+      "c5.xlarge": {
+        "on_demand": 0.17,
+        "spot": 0.0757,
+        "savings_plan": 0.0935,
+        "reserved_1yr": 0.102,
+        "reserved_3yr": 0.068,
+        "blended": 0.17
+      },
+      "c5.large": {
+        "on_demand": 0.085,
+        "spot": 0.0209,
+        "savings_plan": 0.04675,
+        "reserved_1yr": 0.051,
+        "reserved_3yr": 0.034,
+        "blended": 0.085
+      },
+      "r5.large": {
+        "on_demand": 0.126,
+        "spot": 0.0403,
+        "savings_plan": 0.0693,
+        "reserved_1yr": 0.0756,
+        "reserved_3yr": 0.0504,
+        "blended": 0.126
+      },
+      "t3.medium": {
+        "on_demand": 0.0416,
+        "spot": 0.0163,
+        "savings_plan": 0.02288,
+        "reserved_1yr": 0.02496,
+        "reserved_3yr": 0.01664,
+        "blended": 0.0416
+      }
+    },
+    "_region": "us-west-2",
+    "_updated": "2026-03-11T05:41:19.961993+00:00"
+  },
+  "eu-central-1": {
+    "g4dn.xlarge": 0.658,
+    "g4dn.xlarge:on_demand": 0.658,
+    "g4dn.xlarge:spot": 0.2403,
+    "g4dn.xlarge:savings_plan": 0.3619,
+    "g4dn.xlarge:reserved_1yr": 0.3948,
+    "g4dn.xlarge:reserved_3yr": 0.2632,
+    "g4dn.xlarge:blended": 0.658,
+    "p3.2xlarge": 3.823,
+    "p3.2xlarge:on_demand": 3.823,
+    "p3.2xlarge:spot": 0.6645,
+    "p3.2xlarge:savings_plan": 2.10265,
+    "p3.2xlarge:reserved_1yr": 2.2938,
+    "p3.2xlarge:reserved_3yr": 1.5292,
+    "p3.2xlarge:blended": 3.823,
+    "t3.large": 0.096,
+    "t3.large:on_demand": 0.096,
+    "t3.large:spot": 0.0421,
+    "t3.large:savings_plan": 0.0528,
+    "t3.large:reserved_1yr": 0.0576,
+    "t3.large:reserved_3yr": 0.0384,
+    "t3.large:blended": 0.096,
+    "on_demand_per_vcpu_hr": 0.230125,
+    "_nested": {
+      "g4dn.xlarge": {
+        "on_demand": 0.658,
+        "spot": 0.2403,
+        "savings_plan": 0.3619,
+        "reserved_1yr": 0.3948,
+        "reserved_3yr": 0.2632,
+        "blended": 0.658
+      },
+      "p3.2xlarge": {
+        "on_demand": 3.823,
+        "spot": 0.6645,
+        "savings_plan": 2.10265,
+        "reserved_1yr": 2.2938,
+        "reserved_3yr": 1.5292,
+        "blended": 3.823
+      },
+      "t3.large": {
+        "on_demand": 0.096,
+        "spot": 0.0421,
+        "savings_plan": 0.0528,
+        "reserved_1yr": 0.0576,
+        "reserved_3yr": 0.0384,
+        "blended": 0.096
+      }
+    },
+    "_region": "eu-central-1",
+    "_updated": "2026-03-11T05:41:19.961993+00:00"
+  },
+  "ap-southeast-2": {
+    "r5.xlarge": 0.302,
+    "r5.xlarge:on_demand": 0.302,
+    "r5.xlarge:spot": 0.118,
+    "r5.xlarge:savings_plan": 0.1661,
+    "r5.xlarge:reserved_1yr": 0.1812,
+    "r5.xlarge:reserved_3yr": 0.1208,
+    "r5.xlarge:blended": 0.302,
+    "r5.large": 0.151,
+    "r5.large:on_demand": 0.151,
+    "r5.large:spot": 0.0539,
+    "r5.large:savings_plan": 0.08305,
+    "r5.large:reserved_1yr": 0.0906,
+    "r5.large:reserved_3yr": 0.0604,
+    "r5.large:blended": 0.151,
+    "c5.xlarge": 0.222,
+    "c5.xlarge:on_demand": 0.222,
+    "c5.xlarge:spot": 0.0893,
+    "c5.xlarge:savings_plan": 0.1221,
+    "c5.xlarge:reserved_1yr": 0.1332,
+    "c5.xlarge:reserved_3yr": 0.0888,
+    "c5.xlarge:blended": 0.222,
+    "g4dn.xlarge": 0.684,
+    "g4dn.xlarge:on_demand": 0.684,
+    "g4dn.xlarge:spot": 0.3167,
+    "g4dn.xlarge:savings_plan": 0.3762,
+    "g4dn.xlarge:reserved_1yr": 0.4104,
+    "g4dn.xlarge:reserved_3yr": 0.2736,
+    "g4dn.xlarge:blended": 0.684,
+    "t3.medium": 0.0528,
+    "t3.medium:on_demand": 0.0528,
+    "t3.medium:spot": 0.0174,
+    "t3.medium:savings_plan": 0.02904,
+    "t3.medium:reserved_1yr": 0.03168,
+    "t3.medium:reserved_3yr": 0.02112,
+    "t3.medium:blended": 0.0528,
+    "on_demand_per_vcpu_hr": 0.08078,
+    "_nested": {
+      "r5.xlarge": {
+        "on_demand": 0.302,
+        "spot": 0.118,
+        "savings_plan": 0.1661,
+        "reserved_1yr": 0.1812,
+        "reserved_3yr": 0.1208,
+        "blended": 0.302
+      },
+      "r5.large": {
+        "on_demand": 0.151,
+        "spot": 0.0539,
+        "savings_plan": 0.08305,
+        "reserved_1yr": 0.0906,
+        "reserved_3yr": 0.0604,
+        "blended": 0.151
+      },
+      "c5.xlarge": {
+        "on_demand": 0.222,
+        "spot": 0.0893,
+        "savings_plan": 0.1221,
+        "reserved_1yr": 0.1332,
+        "reserved_3yr": 0.0888,
+        "blended": 0.222
+      },
+      "g4dn.xlarge": {
+        "on_demand": 0.684,
+        "spot": 0.3167,
+        "savings_plan": 0.3762,
+        "reserved_1yr": 0.4104,
+        "reserved_3yr": 0.2736,
+        "blended": 0.684
+      },
+      "t3.medium": {
+        "on_demand": 0.0528,
+        "spot": 0.0174,
+        "savings_plan": 0.02904,
+        "reserved_1yr": 0.03168,
+        "reserved_3yr": 0.02112,
+        "blended": 0.0528
+      }
+    },
+    "_region": "ap-southeast-2",
+    "_updated": "2026-03-11T05:41:19.961993+00:00"
+  },
+  "ap-northeast-2": {
+    "m5.xlarge": 0.236,
+    "m5.xlarge:on_demand": 0.236,
+    "m5.xlarge:spot": 0.0388,
+    "m5.xlarge:savings_plan": 0.1298,
+    "m5.xlarge:reserved_1yr": 0.1416,
+    "m5.xlarge:reserved_3yr": 0.0944,
+    "m5.xlarge:blended": 0.236,
+    "t3.large": 0.104,
+    "t3.large:on_demand": 0.104,
+    "t3.large:spot": 0.0427,
+    "t3.large:savings_plan": 0.0572,
+    "t3.large:reserved_1yr": 0.0624,
+    "t3.large:reserved_3yr": 0.0416,
+    "t3.large:blended": 0.104,
+    "on_demand_per_vcpu_hr": 0.0555,
+    "_nested": {
+      "m5.xlarge": {
+        "on_demand": 0.236,
+        "spot": 0.0388,
+        "savings_plan": 0.1298,
+        "reserved_1yr": 0.1416,
+        "reserved_3yr": 0.0944,
+        "blended": 0.236
+      },
+      "t3.large": {
+        "on_demand": 0.104,
+        "spot": 0.0427,
+        "savings_plan": 0.0572,
+        "reserved_1yr": 0.0624,
+        "reserved_3yr": 0.0416,
+        "blended": 0.104
+      }
+    },
+    "_region": "ap-northeast-2",
+    "_updated": "2026-03-11T05:41:19.961993+00:00"
+  },
+  "eu-west-2": {
+    "p3.2xlarge": 3.589,
+    "p3.2xlarge:on_demand": 3.589,
+    "p3.2xlarge:spot": 0.7037,
+    "p3.2xlarge:savings_plan": 1.97395,
+    "p3.2xlarge:reserved_1yr": 2.1534,
+    "p3.2xlarge:reserved_3yr": 1.4356,
+    "p3.2xlarge:blended": 3.589,
+    "on_demand_per_vcpu_hr": 0.448625,
+    "_nested": {
+      "p3.2xlarge": {
+        "on_demand": 3.589,
+        "spot": 0.7037,
+        "savings_plan": 1.97395,
+        "reserved_1yr": 2.1534,
+        "reserved_3yr": 1.4356,
+        "blended": 3.589
+      }
+    },
+    "_region": "eu-west-2",
+    "_updated": "2026-03-11T05:41:19.961993+00:00"
+  },
+  "ap-south-1": {
+    "c5.xlarge": 0.17,
+    "c5.xlarge:on_demand": 0.17,
+    "c5.xlarge:spot": 0.0619,
+    "c5.xlarge:savings_plan": 0.0935,
+    "c5.xlarge:reserved_1yr": 0.102,
+    "c5.xlarge:reserved_3yr": 0.068,
+    "c5.xlarge:blended": 0.17,
+    "c5.large": 0.085,
+    "c5.large:on_demand": 0.085,
+    "c5.large:spot": 0.0393,
+    "c5.large:savings_plan": 0.04675,
+    "c5.large:reserved_1yr": 0.051,
+    "c5.large:reserved_3yr": 0.034,
+    "c5.large:blended": 0.085,
+    "t3.medium": 0.0448,
+    "t3.medium:on_demand": 0.0448,
+    "t3.medium:spot": 0.0171,
+    "t3.medium:savings_plan": 0.02464,
+    "t3.medium:reserved_1yr": 0.02688,
+    "t3.medium:reserved_3yr": 0.01792,
+    "t3.medium:blended": 0.0448,
+    "on_demand_per_vcpu_hr": 0.0358,
+    "_nested": {
+      "c5.xlarge": {
+        "on_demand": 0.17,
+        "spot": 0.0619,
+        "savings_plan": 0.0935,
+        "reserved_1yr": 0.102,
+        "reserved_3yr": 0.068,
+        "blended": 0.17
+      },
+      "c5.large": {
+        "on_demand": 0.085,
+        "spot": 0.0393,
+        "savings_plan": 0.04675,
+        "reserved_1yr": 0.051,
+        "reserved_3yr": 0.034,
+        "blended": 0.085
+      },
+      "t3.medium": {
+        "on_demand": 0.0448,
+        "spot": 0.0171,
+        "savings_plan": 0.02464,
+        "reserved_1yr": 0.02688,
+        "reserved_3yr": 0.01792,
+        "blended": 0.0448
+      }
+    },
+    "_region": "ap-south-1",
+    "_updated": "2026-03-11T05:41:19.961993+00:00"
+  },
+  "ca-central-1": {
+    "m5.xlarge": 0.214,
+    "m5.xlarge:on_demand": 0.214,
+    "m5.xlarge:spot": 0.0462,
+    "m5.xlarge:savings_plan": 0.1177,
+    "m5.xlarge:reserved_1yr": 0.1284,
+    "m5.xlarge:reserved_3yr": 0.0856,
+    "m5.xlarge:blended": 0.214,
+    "m5.large": 0.107,
+    "m5.large:on_demand": 0.107,
+    "m5.large:spot": 0.0368,
+    "m5.large:savings_plan": 0.05885,
+    "m5.large:reserved_1yr": 0.0642,
+    "m5.large:reserved_3yr": 0.0428,
+    "m5.large:blended": 0.107,
+    "on_demand_per_vcpu_hr": 0.0535,
+    "_nested": {
+      "m5.xlarge": {
+        "on_demand": 0.214,
+        "spot": 0.0462,
+        "savings_plan": 0.1177,
+        "reserved_1yr": 0.1284,
+        "reserved_3yr": 0.0856,
+        "blended": 0.214
+      },
+      "m5.large": {
+        "on_demand": 0.107,
+        "spot": 0.0368,
+        "savings_plan": 0.05885,
+        "reserved_1yr": 0.0642,
+        "reserved_3yr": 0.0428,
+        "blended": 0.107
+      }
+    },
+    "_region": "ca-central-1",
+    "_updated": "2026-03-11T05:41:19.961993+00:00"
+  },
+  "eu-west-1": {
+    "c5.large": 0.096,
+    "c5.large:on_demand": 0.096,
+    "c5.large:spot": 0.0599,
+    "c5.large:savings_plan": 0.0528,
+    "c5.large:reserved_1yr": 0.0576,
+    "c5.large:reserved_3yr": 0.0384,
+    "c5.large:blended": 0.096,
+    "c5.xlarge": 0.192,
+    "c5.xlarge:on_demand": 0.192,
+    "c5.xlarge:spot": 0.119,
+    "c5.xlarge:savings_plan": 0.1056,
+    "c5.xlarge:reserved_1yr": 0.1152,
+    "c5.xlarge:reserved_3yr": 0.0768,
+    "c5.xlarge:blended": 0.192,
+    "t3.medium": 0.0456,
+    "t3.medium:on_demand": 0.0456,
+    "t3.medium:spot": 0.022,
+    "t3.medium:savings_plan": 0.02508,
+    "t3.medium:reserved_1yr": 0.02736,
+    "t3.medium:reserved_3yr": 0.01824,
+    "t3.medium:blended": 0.0456,
+    "on_demand_per_vcpu_hr": 0.0396,
+    "_nested": {
+      "c5.large": {
+        "on_demand": 0.096,
+        "spot": 0.0599,
+        "savings_plan": 0.0528,
+        "reserved_1yr": 0.0576,
+        "reserved_3yr": 0.0384,
+        "blended": 0.096
+      },
+      "c5.xlarge": {
+        "on_demand": 0.192,
+        "spot": 0.119,
+        "savings_plan": 0.1056,
+        "reserved_1yr": 0.1152,
+        "reserved_3yr": 0.0768,
+        "blended": 0.192
+      },
+      "t3.medium": {
+        "on_demand": 0.0456,
+        "spot": 0.022,
+        "savings_plan": 0.02508,
+        "reserved_1yr": 0.02736,
+        "reserved_3yr": 0.01824,
+        "blended": 0.0456
+      }
+    },
+    "_region": "eu-west-1",
+    "_updated": "2026-03-11T05:41:19.961993+00:00"
+  },
+  "us-east-1": {
+    "c5.xlarge": 0.17,
+    "c5.xlarge:on_demand": 0.17,
+    "c5.xlarge:spot": 0.0774,
+    "c5.xlarge:savings_plan": 0.0935,
+    "c5.xlarge:reserved_1yr": 0.102,
+    "c5.xlarge:reserved_3yr": 0.068,
+    "c5.xlarge:blended": 0.17,
+    "m5.xlarge": 0.192,
+    "m5.xlarge:on_demand": 0.192,
+    "m5.xlarge:spot": 0.0578,
+    "m5.xlarge:savings_plan": 0.1056,
+    "m5.xlarge:reserved_1yr": 0.1152,
+    "m5.xlarge:reserved_3yr": 0.0768,
+    "m5.xlarge:blended": 0.192,
+    "p3.2xlarge": 3.06,
+    "p3.2xlarge:on_demand": 3.06,
+    "p3.2xlarge:spot": 0.4356,
+    "p3.2xlarge:savings_plan": 1.683,
+    "p3.2xlarge:reserved_1yr": 1.836,
+    "p3.2xlarge:reserved_3yr": 1.224,
+    "p3.2xlarge:blended": 3.06,
+    "m5.large": 0.096,
+    "m5.large:on_demand": 0.096,
+    "m5.large:spot": 0.0349,
+    "m5.large:savings_plan": 0.0528,
+    "m5.large:reserved_1yr": 0.0576,
+    "m5.large:reserved_3yr": 0.0384,
+    "m5.large:blended": 0.096,
+    "c5.large": 0.085,
+    "c5.large:on_demand": 0.085,
+    "c5.large:spot": 0.0287,
+    "c5.large:savings_plan": 0.04675,
+    "c5.large:reserved_1yr": 0.051,
+    "c5.large:reserved_3yr": 0.034,
+    "c5.large:blended": 0.085,
+    "g4dn.xlarge": 0.526,
+    "g4dn.xlarge:on_demand": 0.526,
+    "g4dn.xlarge:spot": 0.2153,
+    "g4dn.xlarge:savings_plan": 0.2893,
+    "g4dn.xlarge:reserved_1yr": 0.3156,
+    "g4dn.xlarge:reserved_3yr": 0.2104,
+    "g4dn.xlarge:blended": 0.526,
+    "on_demand_per_vcpu_hr": 0.115833,
+    "_nested": {
+      "c5.xlarge": {
+        "on_demand": 0.17,
+        "spot": 0.0774,
+        "savings_plan": 0.0935,
+        "reserved_1yr": 0.102,
+        "reserved_3yr": 0.068,
+        "blended": 0.17
+      },
+      "m5.xlarge": {
+        "on_demand": 0.192,
+        "spot": 0.0578,
+        "savings_plan": 0.1056,
+        "reserved_1yr": 0.1152,
+        "reserved_3yr": 0.0768,
+        "blended": 0.192
+      },
+      "p3.2xlarge": {
+        "on_demand": 3.06,
+        "spot": 0.4356,
+        "savings_plan": 1.683,
+        "reserved_1yr": 1.836,
+        "reserved_3yr": 1.224,
+        "blended": 3.06
+      },
+      "m5.large": {
+        "on_demand": 0.096,
+        "spot": 0.0349,
+        "savings_plan": 0.0528,
+        "reserved_1yr": 0.0576,
+        "reserved_3yr": 0.0384,
+        "blended": 0.096
+      },
+      "c5.large": {
+        "on_demand": 0.085,
+        "spot": 0.0287,
+        "savings_plan": 0.04675,
+        "reserved_1yr": 0.051,
+        "reserved_3yr": 0.034,
+        "blended": 0.085
+      },
+      "g4dn.xlarge": {
+        "on_demand": 0.526,
+        "spot": 0.2153,
+        "savings_plan": 0.2893,
+        "reserved_1yr": 0.3156,
+        "reserved_3yr": 0.2104,
+        "blended": 0.526
+      }
+    },
+    "_region": "us-east-1",
+    "_updated": "2026-03-11T05:41:19.963668+00:00"
+  },
+  "ap-northeast-1": {
+    "m5.xlarge": 0.248,
+    "m5.xlarge:on_demand": 0.248,
+    "m5.xlarge:spot": 0.0682,
+    "m5.xlarge:savings_plan": 0.1364,
+    "m5.xlarge:reserved_1yr": 0.1488,
+    "m5.xlarge:reserved_3yr": 0.0992,
+    "m5.xlarge:blended": 0.248,
+    "t3.medium": 0.0544,
+    "t3.medium:on_demand": 0.0544,
+    "t3.medium:spot": 0.0171,
+    "t3.medium:savings_plan": 0.02992,
+    "t3.medium:reserved_1yr": 0.03264,
+    "t3.medium:reserved_3yr": 0.02176,
+    "t3.medium:blended": 0.0544,
+    "on_demand_per_vcpu_hr": 0.0446,
+    "_nested": {
+      "m5.xlarge": {
+        "on_demand": 0.248,
+        "spot": 0.0682,
+        "savings_plan": 0.1364,
+        "reserved_1yr": 0.1488,
+        "reserved_3yr": 0.0992,
+        "blended": 0.248
+      },
+      "t3.medium": {
+        "on_demand": 0.0544,
+        "spot": 0.0171,
+        "savings_plan": 0.02992,
+        "reserved_1yr": 0.03264,
+        "reserved_3yr": 0.02176,
+        "blended": 0.0544
+      }
+    },
+    "_region": "ap-northeast-1",
+    "_updated": "2026-03-11T05:41:19.963668+00:00"
+  },
+  "us-east-2": {
+    "c5.xlarge": 0.17,
+    "c5.xlarge:on_demand": 0.17,
+    "c5.xlarge:spot": 0.0474,
+    "c5.xlarge:savings_plan": 0.0935,
+    "c5.xlarge:reserved_1yr": 0.102,
+    "c5.xlarge:reserved_3yr": 0.068,
+    "c5.xlarge:blended": 0.17,
+    "g4dn.xlarge": 0.526,
+    "g4dn.xlarge:on_demand": 0.526,
+    "g4dn.xlarge:spot": 0.1678,
+    "g4dn.xlarge:savings_plan": 0.2893,
+    "g4dn.xlarge:reserved_1yr": 0.3156,
+    "g4dn.xlarge:reserved_3yr": 0.2104,
+    "g4dn.xlarge:blended": 0.526,
+    "m5.large": 0.096,
+    "m5.large:on_demand": 0.096,
+    "m5.large:spot": 0.0269,
+    "m5.large:savings_plan": 0.0528,
+    "m5.large:reserved_1yr": 0.0576,
+    "m5.large:reserved_3yr": 0.0384,
+    "m5.large:blended": 0.096,
+    "on_demand_per_vcpu_hr": 0.074,
+    "_nested": {
+      "c5.xlarge": {
+        "on_demand": 0.17,
+        "spot": 0.0474,
+        "savings_plan": 0.0935,
+        "reserved_1yr": 0.102,
+        "reserved_3yr": 0.068,
+        "blended": 0.17
+      },
+      "g4dn.xlarge": {
+        "on_demand": 0.526,
+        "spot": 0.1678,
+        "savings_plan": 0.2893,
+        "reserved_1yr": 0.3156,
+        "reserved_3yr": 0.2104,
+        "blended": 0.526
+      },
+      "m5.large": {
+        "on_demand": 0.096,
+        "spot": 0.0269,
+        "savings_plan": 0.0528,
+        "reserved_1yr": 0.0576,
+        "reserved_3yr": 0.0384,
+        "blended": 0.096
+      }
+    },
+    "_region": "us-east-2",
+    "_updated": "2026-03-11T05:41:19.963668+00:00"
+  },
+  "sa-east-1": {
+    "c5.large": 0.131,
+    "c5.large:on_demand": 0.131,
+    "c5.large:spot": 0.0238,
+    "c5.large:savings_plan": 0.07205,
+    "c5.large:reserved_1yr": 0.0786,
+    "c5.large:reserved_3yr": 0.0524,
+    "c5.large:blended": 0.131,
+    "r5.large": 0.201,
+    "r5.large:on_demand": 0.201,
+    "r5.large:spot": 0.0463,
+    "r5.large:savings_plan": 0.11055,
+    "r5.large:reserved_1yr": 0.1206,
+    "r5.large:reserved_3yr": 0.0804,
+    "r5.large:blended": 0.201,
+    "on_demand_per_vcpu_hr": 0.083,
+    "_nested": {
+      "c5.large": {
+        "on_demand": 0.131,
+        "spot": 0.0238,
+        "savings_plan": 0.07205,
+        "reserved_1yr": 0.0786,
+        "reserved_3yr": 0.0524,
+        "blended": 0.131
+      },
+      "r5.large": {
+        "on_demand": 0.201,
+        "spot": 0.0463,
+        "savings_plan": 0.11055,
+        "reserved_1yr": 0.1206,
+        "reserved_3yr": 0.0804,
+        "blended": 0.201
+      }
+    },
+    "_region": "sa-east-1",
+    "_updated": "2026-03-11T05:41:19.963668+00:00"
+  },
+  "ap-southeast-1": {
+    "p3.2xlarge": 4.234,
+    "p3.2xlarge:on_demand": 4.234,
+    "p3.2xlarge:spot": 1.2483,
+    "p3.2xlarge:savings_plan": 2.3287,
+    "p3.2xlarge:reserved_1yr": 2.5404,
+    "p3.2xlarge:reserved_3yr": 1.6936,
+    "p3.2xlarge:blended": 4.234,
+    "on_demand_per_vcpu_hr": 0.52925,
+    "_nested": {
+      "p3.2xlarge": {
+        "on_demand": 4.234,
+        "spot": 1.2483,
+        "savings_plan": 2.3287,
+        "reserved_1yr": 2.5404,
+        "reserved_3yr": 1.6936,
+        "blended": 4.234
+      }
+    },
+    "_region": "ap-southeast-1",
+    "_updated": "2026-03-11T05:41:19.963668+00:00"
+  },
+  "us-west-1": {
+    "m5.large": 0.112,
+    "m5.large:on_demand": 0.112,
+    "m5.large:spot": 0.0355,
+    "m5.large:savings_plan": 0.0616,
+    "m5.large:reserved_1yr": 0.0672,
+    "m5.large:reserved_3yr": 0.0448,
+    "m5.large:blended": 0.112,
+    "r5.large": 0.14,
+    "r5.large:on_demand": 0.14,
+    "r5.large:spot": 0.0368,
+    "r5.large:savings_plan": 0.077,
+    "r5.large:reserved_1yr": 0.084,
+    "r5.large:reserved_3yr": 0.056,
+    "r5.large:blended": 0.14,
+    "on_demand_per_vcpu_hr": 0.063,
+    "_nested": {
+      "m5.large": {
+        "on_demand": 0.112,
+        "spot": 0.0355,
+        "savings_plan": 0.0616,
+        "reserved_1yr": 0.0672,
+        "reserved_3yr": 0.0448,
+        "blended": 0.112
+      },
+      "r5.large": {
+        "on_demand": 0.14,
+        "spot": 0.0368,
+        "savings_plan": 0.077,
+        "reserved_1yr": 0.084,
+        "reserved_3yr": 0.056,
+        "blended": 0.14
+      }
+    },
+    "_region": "us-west-1",
+    "_updated": "2026-03-11T05:41:19.963668+00:00"
+  },
+  "eu-west-3": {
+    "m5.xlarge": 0.224,
+    "m5.xlarge:on_demand": 0.224,
+    "m5.xlarge:spot": 0.0614,
+    "m5.xlarge:savings_plan": 0.1232,
+    "m5.xlarge:reserved_1yr": 0.1344,
+    "m5.xlarge:reserved_3yr": 0.0896,
+    "m5.xlarge:blended": 0.224,
+    "t3.medium": 0.0472,
+    "t3.medium:on_demand": 0.0472,
+    "t3.medium:spot": 0.0176,
+    "t3.medium:savings_plan": 0.02596,
+    "t3.medium:reserved_1yr": 0.02832,
+    "t3.medium:reserved_3yr": 0.01888,
+    "t3.medium:blended": 0.0472,
+    "on_demand_per_vcpu_hr": 0.0398,
+    "_nested": {
+      "m5.xlarge": {
+        "on_demand": 0.224,
+        "spot": 0.0614,
+        "savings_plan": 0.1232,
+        "reserved_1yr": 0.1344,
+        "reserved_3yr": 0.0896,
+        "blended": 0.224
+      },
+      "t3.medium": {
+        "on_demand": 0.0472,
+        "spot": 0.0176,
+        "savings_plan": 0.02596,
+        "reserved_1yr": 0.02832,
+        "reserved_3yr": 0.01888,
+        "blended": 0.0472
+      }
+    },
+    "_region": "eu-west-3",
+    "_updated": "2026-03-11T05:41:19.963668+00:00"
+  },
+  "eu-north-1": {
+    "g4dn.xlarge": 0.558,
+    "g4dn.xlarge:on_demand": 0.558,
+    "g4dn.xlarge:spot": 0.194,
+    "g4dn.xlarge:savings_plan": 0.3069,
+    "g4dn.xlarge:reserved_1yr": 0.3348,
+    "g4dn.xlarge:reserved_3yr": 0.2232,
+    "g4dn.xlarge:blended": 0.558,
+    "on_demand_per_vcpu_hr": 0.1395,
+    "_nested": {
+      "g4dn.xlarge": {
+        "on_demand": 0.558,
+        "spot": 0.194,
+        "savings_plan": 0.3069,
+        "reserved_1yr": 0.3348,
+        "reserved_3yr": 0.2232,
+        "blended": 0.558
+      }
+    },
+    "_region": "eu-north-1",
+    "_updated": "2026-03-11T05:41:19.963668+00:00"
+  }
+}
