@@ -1,0 +1,201 @@
+# =============================================================================
+# CloudOS-RL FastAPI Backend Deployment
+# Skeleton deployment — Module C/H completes the actual API code.
+# Exposes the scheduling REST API at :8000.
+# =============================================================================
+
+# ── Deployment ────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudos-api
+  namespace: cloudos-rl
+  labels:
+    app.kubernetes.io/name:      cloudos-rl
+    app.kubernetes.io/component: api
+    app:                         cloudos-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudos-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge:       1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app:                         cloudos-api
+        app.kubernetes.io/component: api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port:   "8000"
+        prometheus.io/path:   "/metrics"
+    spec:
+      serviceAccountName: cloudos-operator
+
+      initContainers:
+        - name: wait-for-bridge
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for cloudos-bridge-svc ..."
+              until wget -qO- http://cloudos-bridge-svc:9090/metrics > /dev/null 2>&1; do
+                echo "  Bridge not ready — retrying in 5s"
+                sleep 5
+              done
+              echo "Bridge is reachable."
+
+      containers:
+        - name: api
+          image: python:3.11-slim
+          imagePullPolicy: IfNotPresent
+
+          command:
+            - sh
+            - -c
+            - |
+              pip install --quiet fastapi uvicorn pyyaml pydantic boto3 && \
+              cd /app && \
+              python -m uvicorn backend.api.main:app \
+                --host 0.0.0.0 --port 8000 --workers 2 --log-level info
+
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+
+          env:
+            - name: CLOUDOS_KAFKA_BOOTSTRAP
+              valueFrom:
+                configMapKeyRef:
+                  name: cloudos-config
+                  key:  CLOUDOS_KAFKA_BOOTSTRAP
+            - name: CLOUDOS_MODEL_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: cloudos-config
+                  key:  CLOUDOS_MODEL_PATH
+            - name: CLOUDOS_VECNORM_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: cloudos-config
+                  key:  CLOUDOS_VECNORM_PATH
+            - name: CLOUDOS_LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: cloudos-config
+                  key:  CLOUDOS_LOG_LEVEL
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: cloudos-secrets
+                  key:  AWS_ACCESS_KEY_ID
+                  optional: true
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cloudos-secrets
+                  key:  AWS_SECRET_ACCESS_KEY
+                  optional: true
+            - name: AWS_DEFAULT_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: cloudos-secrets
+                  key:  AWS_DEFAULT_REGION
+                  optional: true
+
+          volumeMounts:
+            - name: app-code
+              mountPath: /app
+            - name: config
+              mountPath: /app/config/settings.yaml
+              subPath:   settings.yaml
+            - name: data-pricing
+              mountPath: /app/data/pricing
+            - name: data-carbon
+              mountPath: /app/data/carbon
+            - name: models
+              mountPath: /app/models
+
+          resources:
+            requests:
+              cpu:    "200m"
+              memory: "512Mi"
+            limits:
+              cpu:    "1000m"
+              memory: "2Gi"
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 40
+            periodSeconds:       20
+            failureThreshold:    3
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds:       10
+
+      hostAliases:
+        - ip: "192.168.49.1"
+          hostnames:
+            - "host.minikube.internal"
+
+      volumes:
+        - name: app-code
+          hostPath:
+            path: /cloudos-rl
+            type: DirectoryOrCreate
+
+        - name: config
+          configMap:
+            name: cloudos-config
+            items:
+              - key:  settings.yaml
+                path: settings.yaml
+
+        - name: data-pricing
+          hostPath:
+            path: /cloudos-rl/data/pricing
+            type: DirectoryOrCreate
+
+        - name: data-carbon
+          hostPath:
+            path: /cloudos-rl/data/carbon
+            type: DirectoryOrCreate
+
+        - name: models
+          hostPath:
+            path: /cloudos-rl/models
+            type: DirectoryOrCreate
+
+---
+
+# ── Service: NodePort (accessible from host browser) ─────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudos-api-svc
+  namespace: cloudos-rl
+  labels:
+    app.kubernetes.io/name:      cloudos-rl
+    app.kubernetes.io/component: api
+spec:
+  selector:
+    app: cloudos-api
+  ports:
+    - name:       http
+      port:       8000
+      targetPort: 8000
+      nodePort:   30800     # accessible at minikube_ip:30800
+      protocol:   TCP
+  type: NodePort

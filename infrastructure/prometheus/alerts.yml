@@ -1,0 +1,67 @@
+# =============================================================================
+# CloudOS-RL Prometheus Alert Rules
+# =============================================================================
+# These fire when the system is degraded.
+# Visible in Prometheus UI at http://localhost:9091/alerts
+# =============================================================================
+
+groups:
+
+  - name: cloudos_bridge
+    interval: 30s
+    rules:
+
+      - alert: CloudOSBridgeDown
+        expr: cloudos_bridge_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CloudOS-RL Kafka-Prometheus bridge is down"
+          description: "cloudos_bridge_up has been 0 for more than 1 minute."
+
+      - alert: CloudOSNoDecisions
+        expr: sum(rate(cloudos_decisions_total[5m])) == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "No scheduling decisions in the last 5 minutes"
+          description: "The RL agent has not made any scheduling decisions recently."
+
+  - name: cloudos_performance
+    interval: 60s
+    rules:
+
+      - alert: CloudOSHighLatency
+        expr: histogram_quantile(0.95, sum(rate(cloudos_inference_latency_seconds_bucket[5m])) by (le)) > 0.1
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "RL inference p95 latency > 100ms"
+          description: "p95 scheduling latency has exceeded the 100ms target."
+
+      - alert: CloudOSLowCostSavings
+        expr: >
+          (sum(rate(cloudos_cost_savings_ratio_sum[15m])) /
+           sum(rate(cloudos_cost_savings_ratio_count[15m]))) < 0.15
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Average cost savings below 15%"
+          description: "The RL agent cost savings have dropped below the 15% minimum threshold."
+
+  - name: cloudos_pipeline
+    interval: 60s
+    rules:
+
+      - alert: CloudOSPipelineErrors
+        expr: sum(cloudos_pipeline_errors_total) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Data pipeline errors detected"
+          description: "More than 5 pipeline errors have accumulated."

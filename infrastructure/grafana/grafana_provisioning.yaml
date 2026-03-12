@@ -1,0 +1,18 @@
+# Grafana provisioning config for CloudOS-RL
+# Place this at: <grafana_home>/conf/provisioning/datasources/cloudos.yaml
+# Grafana will auto-load the Prometheus datasource on restart.
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus-CloudOS
+    type: prometheus
+    access: proxy
+    url: http://localhost:9090
+    isDefault: true
+    editable: true
+    jsonData:
+      httpMethod: POST
+      prometheusType: Prometheus
+      prometheusVersion: "2.40.0"
+      timeInterval: "10s"

@@ -1,0 +1,69 @@
+# =============================================================================
+# Prometheus Configuration — CloudOS-RL
+# =============================================================================
+# Scrapes the Kafka-Prometheus bridge at localhost:9090/metrics every 10s.
+# Prometheus itself runs at :9091 and provides the full PromQL query API.
+#
+# Grafana datasource must point to http://localhost:9091 (not 9090).
+# =============================================================================
+
+global:
+  scrape_interval:     10s   # how often to scrape targets
+  evaluation_interval: 10s   # how often to evaluate alert rules
+  scrape_timeout:      8s
+
+  external_labels:
+    monitor: "cloudos-rl"
+    env:     "development"
+
+# Alert rules
+rule_files:
+  - "alerts.yml"
+
+# Alertmanager (optional — comment out if not running)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: ['localhost:9093']
+
+# =============================================================================
+# Scrape configs
+# =============================================================================
+scrape_configs:
+
+  # ── CloudOS-RL Bridge / Exporter ─────────────────────────────────────────
+  # This is the kafka_prometheus_bridge running at :9090/metrics
+  # It exposes all cloudos_* metrics
+  - job_name: "cloudos-bridge"
+    scrape_interval: 10s
+    static_configs:
+      - targets:
+          - "localhost:9090"   # bridge metrics endpoint (Module D)
+        labels:
+          service: "kafka-prometheus-bridge"
+          module:  "D"
+    metrics_path: /metrics
+    scheme: http
+    metric_relabel_configs:
+      # Keep only cloudos_* and python process metrics
+      - source_labels: [__name__]
+        regex: "cloudos_.*|python_.*|process_.*"
+        action: keep
+
+  # ── CloudOS-RL FastAPI Backend ────────────────────────────────────────────
+  # Uncomment when Module C/H (API) is running
+  # - job_name: "cloudos-api"
+  #   scrape_interval: 15s
+  #   static_configs:
+  #     - targets:
+  #         - "localhost:8000"
+  #   metrics_path: /metrics
+
+  # ── Prometheus self-monitoring ────────────────────────────────────────────
+  - job_name: "prometheus"
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - "localhost:9091"
+        labels:
+          service: "prometheus"

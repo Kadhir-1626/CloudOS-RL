@@ -1,0 +1,121 @@
+# =============================================================================
+# CloudOS-RL RBAC
+# ServiceAccount + ClusterRole + Bindings for the operator and API
+# =============================================================================
+
+# ── ServiceAccount ────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cloudos-operator
+  namespace: cloudos-rl
+  labels:
+    app.kubernetes.io/name:      cloudos-rl
+    app.kubernetes.io/component: rbac
+
+---
+
+# ── ClusterRole — full access to CloudWorkload CRD ───────────────────────────
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cloudos-operator-role
+  labels:
+    app.kubernetes.io/name:      cloudos-rl
+    app.kubernetes.io/component: rbac
+rules:
+
+  # CloudWorkload CRD — full CRUD + status subresource
+  - apiGroups: ["cloudos.ai"]
+    resources: ["cloudworkloads"]
+    verbs:     ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+  - apiGroups: ["cloudos.ai"]
+    resources: ["cloudworkloads/status"]
+    verbs:     ["get", "update", "patch"]
+
+  - apiGroups: ["cloudos.ai"]
+    resources: ["cloudworkloads/finalizers"]
+    verbs:     ["update"]
+
+  # Core resources — pods, events (for operator to track workload lifecycle)
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "pods/status"]
+    verbs:     ["get", "list", "watch"]
+
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs:     ["create", "patch", "update"]
+
+  # ConfigMaps + Secrets — read-only (operator reads config)
+  - apiGroups: [""]
+    resources: ["configmaps", "secrets"]
+    verbs:     ["get", "list", "watch"]
+
+  # Nodes — operator watches node capacity for scheduling decisions
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs:     ["get", "list", "watch"]
+
+  # Batch jobs — operator may create jobs for workload execution
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs:     ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+---
+
+# ── ClusterRoleBinding ────────────────────────────────────────────────────────
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cloudos-operator-binding
+  labels:
+    app.kubernetes.io/name:      cloudos-rl
+    app.kubernetes.io/component: rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind:     ClusterRole
+  name:     cloudos-operator-role
+subjects:
+  - kind:      ServiceAccount
+    name:      cloudos-operator
+    namespace: cloudos-rl
+
+---
+
+# ── Role — namespace-scoped for bridge and API pods ──────────────────────────
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: cloudos-app-role
+  namespace: cloudos-rl
+  labels:
+    app.kubernetes.io/name:      cloudos-rl
+    app.kubernetes.io/component: rbac
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs:     ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs:     ["get"]
+
+---
+
+# ── RoleBinding ───────────────────────────────────────────────────────────────
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cloudos-app-binding
+  namespace: cloudos-rl
+  labels:
+    app.kubernetes.io/name:      cloudos-rl
+    app.kubernetes.io/component: rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind:     Role
+  name:     cloudos-app-role
+subjects:
+  - kind:      ServiceAccount
+    name:      cloudos-operator
+    namespace: cloudos-rl

@@ -1,0 +1,18 @@
+{
+  "name": "Prometheus-CloudOS",
+  "type": "prometheus",
+  "url": "http://localhost:9090",
+  "access": "proxy",
+  "isDefault": true,
+  "basicAuth": false,
+  "jsonData": {
+    "httpMethod": "POST",
+    "prometheusType": "Prometheus",
+    "prometheusVersion": "2.40.0",
+    "cacheLevel": "Low",
+    "disableRecordingRules": false,
+    "incrementalQueryOverlapWindow": "10m",
+    "exemplarTraceIdDestinations": []
+  },
+  "secureJsonFields": {}
+}

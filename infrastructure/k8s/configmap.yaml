@@ -1,0 +1,84 @@
+# =============================================================================
+# CloudOS-RL ConfigMap
+# Projects project config into pods as environment variables and a mounted file.
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudos-config
+  namespace: cloudos-rl
+  labels:
+    app.kubernetes.io/name:      cloudos-rl
+    app.kubernetes.io/component: config
+data:
+  # ── Core settings (injected as env vars) ─────────────────────────────────
+  CLOUDOS_AWS_REGION:          "us-east-1"
+  CLOUDOS_MODEL_PATH:          "/app/models/best/best_model"
+  CLOUDOS_VECNORM_PATH:        "/app/models/vec_normalize.pkl"
+  CLOUDOS_LOG_LEVEL:           "INFO"
+
+  # Kafka — points to host running natively on Windows
+  # host.minikube.internal resolves to the Windows host from inside Minikube
+  CLOUDOS_KAFKA_BOOTSTRAP:     "host.minikube.internal:9092"
+
+  # Prometheus — Minikube pods cannot reach localhost:9091 directly
+  # They must use host.minikube.internal
+  PROMETHEUS_URL:              "http://host.minikube.internal:9091"
+
+  # Data paths inside the container
+  PRICING_OUTPUT_PATH:         "/app/data/pricing/aws_pricing.json"
+  CARBON_OUTPUT_PATH:          "/app/data/carbon/carbon_intensity.json"
+  ACTUAL_COSTS_OUTPUT_PATH:    "/app/data/pricing/aws_actual_costs.json"
+
+  # Bridge prometheus server (inside pod, not host)
+  BRIDGE_PROMETHEUS_HOST:      "0.0.0.0"
+  BRIDGE_PROMETHEUS_PORT:      "9090"
+
+  # ── settings.yaml mounted as a file ──────────────────────────────────────
+  settings.yaml: |
+    environment: kubernetes
+
+    aws:
+      region: us-east-1
+      pricing_refresh_sec: 3600
+
+    kafka:
+      bootstrap_servers: host.minikube.internal:9092
+      group_id: cloudos-rl-k8s
+      topics:
+        decisions:    cloudos.scheduling.decisions
+        metrics:      cloudos.metrics
+        alerts:       cloudos.alerts
+        workload:     cloudos.workload.events
+
+    prometheus:
+      host: 0.0.0.0
+      port: 9090
+
+    bridge:
+      poll_timeout_seconds:           1.0
+      max_messages_per_poll:          100
+      pipeline_metrics_push_interval: 30
+      decision_window_seconds:        60
+
+    data_pipeline:
+      pricing_refresh_sec:        3600
+      carbon_refresh_sec:         900
+      cur_refresh_sec:            3600
+      pricing_output_path:        /app/data/pricing/aws_pricing.json
+      actual_costs_output_path:   /app/data/pricing/aws_actual_costs.json
+      carbon_output_path:         /app/data/carbon/carbon_intensity.json
+      anomaly_threshold_pct:      50.0
+
+    model:
+      path:       /app/models/best/best_model
+      vecnorm:    /app/models/vec_normalize.pkl
+
+    environment_config:
+      max_episode_steps: 500
+      n_envs:            4
+
+    api:
+      host: 0.0.0.0
+      port: 8000
+      workers: 2

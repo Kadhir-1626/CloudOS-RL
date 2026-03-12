@@ -1,0 +1,117 @@
+# =============================================================================
+# CloudOS-RL Docker Compose Stack
+# =============================================================================
+# Services included:
+#   prometheus  — scrapes bridge at :9090, exposes query API at :9091
+#   grafana     — dashboards at :3000 (optional — already running natively)
+#
+# Services deliberately NOT in Docker (already running natively on Windows):
+#   kafka       — running natively at localhost:9092
+#   zookeeper   — running natively at localhost:2181
+#   bridge      — running natively via python -m ai_engine.kafka.kafka_prometheus_bridge
+#
+# Usage:
+#   docker compose up -d prometheus          # just Prometheus (recommended)
+#   docker compose up -d                     # Prometheus + Grafana in Docker
+#   docker compose --profile full up -d      # everything including Grafana
+#   docker compose down                      # stop all
+#   docker compose logs -f prometheus        # follow Prometheus logs
+#
+# After starting:
+#   Prometheus UI:  http://localhost:9091
+#   Grafana:        http://localhost:3000  (native install)
+#   Bridge metrics: http://localhost:9090/metrics  (native bridge)
+# =============================================================================
+
+version: "3.9"
+
+networks:
+  cloudos-net:
+    driver: bridge
+    name: cloudos-net
+
+volumes:
+  prometheus-data:
+    name: cloudos-prometheus-data
+  grafana-data:
+    name: cloudos-grafana-data
+
+services:
+
+  # ===========================================================================
+  # Prometheus — Time Series Database + Query API
+  # ===========================================================================
+  # Scrapes the native bridge at host.docker.internal:9090
+  # Exposes full PromQL query API at :9091
+  # This is the datasource Grafana should point to for PromQL queries.
+  # ===========================================================================
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: cloudos-prometheus
+    restart: unless-stopped
+    ports:
+      - "9091:9090"         # host:9091 → container:9090
+    volumes:
+      - ./infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infrastructure/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
+      - "--web.enable-lifecycle"
+      - "--web.enable-admin-api"
+      - "--web.listen-address=0.0.0.0:9090"
+      - "--web.external-url=http://localhost:9091"
+      - "--log.level=warn"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - cloudos-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ===========================================================================
+  # Grafana — Dashboards
+  # ===========================================================================
+  # Profile: "docker-grafana"
+  # Only start this if you want to run Grafana in Docker instead of native.
+  # Your native Grafana at localhost:3000 is already working — skip this.
+  # To use: docker compose --profile docker-grafana up -d grafana-docker
+  # ===========================================================================
+  grafana-docker:
+    image: grafana/grafana:10.2.0
+    container_name: cloudos-grafana-docker
+    restart: unless-stopped
+    profiles:
+      - docker-grafana
+    ports:
+      - "3001:3000"         # host:3001 to avoid conflict with native Grafana :3000
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./infrastructure/grafana/grafana_provisioning.yaml:/etc/grafana/provisioning/datasources/cloudos.yaml:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=cloudos123
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_DOMAIN=localhost
+      - GF_SERVER_HTTP_PORT=3000
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/cloudos_dashboard.json
+      - GF_LOG_LEVEL=warn
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - cloudos-net
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s

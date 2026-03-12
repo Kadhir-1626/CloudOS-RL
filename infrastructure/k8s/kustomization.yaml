@@ -1,0 +1,24 @@
+# =============================================================================
+# Kustomize manifest — applies all CloudOS-RL K8s resources in correct order
+# Usage:
+#   kubectl apply -k infrastructure/k8s/
+# =============================================================================
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: cloudos-rl
+
+# Apply resources in this order (dependencies first)
+resources:
+  - namespace.yaml
+  - crd.yaml
+  - rbac.yaml
+  - configmap.yaml
+  - secret.yaml
+  - deployment-bridge.yaml
+  - deployment-api.yaml
+
+commonLabels:
+  app.kubernetes.io/name:       cloudos-rl
+  app.kubernetes.io/version:    "0.1.0"
+  app.kubernetes.io/managed-by: kustomize

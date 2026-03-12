@@ -1,0 +1,185 @@
+# =============================================================================
+# CloudOS-RL Kafka-Prometheus Bridge Deployment
+# Runs Module D bridge inside Minikube.
+# Connects to Kafka at host.minikube.internal:9092 (native Windows Kafka).
+# Exposes /metrics at :9090 inside the cluster.
+# =============================================================================
+
+# ── Deployment ────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudos-bridge
+  namespace: cloudos-rl
+  labels:
+    app.kubernetes.io/name:      cloudos-rl
+    app.kubernetes.io/component: bridge
+    app:                         cloudos-bridge
+spec:
+  replicas: 1   # bridge is stateful (Kafka consumer group) — keep at 1
+  selector:
+    matchLabels:
+      app: cloudos-bridge
+  strategy:
+    type: Recreate   # avoid two consumers in same group simultaneously
+  template:
+    metadata:
+      labels:
+        app:                         cloudos-bridge
+        app.kubernetes.io/component: bridge
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port:   "9090"
+        prometheus.io/path:   "/metrics"
+    spec:
+      serviceAccountName: cloudos-operator
+
+      # ── Init container: wait for Kafka to be reachable ───────────────────
+      initContainers:
+        - name: wait-for-kafka
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for Kafka at host.minikube.internal:9092 ..."
+              until nc -z host.minikube.internal 9092; do
+                echo "  Kafka not ready — retrying in 5s"
+                sleep 5
+              done
+              echo "Kafka is reachable."
+
+      containers:
+        - name: bridge
+          # Use the same Python image as the project
+          # Replace with your built image tag when you run: docker build
+          image: python:3.11-slim
+          imagePullPolicy: IfNotPresent
+
+          command:
+            - sh
+            - -c
+            - |
+              pip install --quiet confluent-kafka prometheus-client pyyaml && \
+              cd /app && \
+              python -m ai_engine.kafka.kafka_prometheus_bridge
+
+          ports:
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+
+          env:
+            - name: CLOUDOS_KAFKA_BOOTSTRAP
+              valueFrom:
+                configMapKeyRef:
+                  name: cloudos-config
+                  key:  CLOUDOS_KAFKA_BOOTSTRAP
+            - name: BRIDGE_PROMETHEUS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: cloudos-config
+                  key:  BRIDGE_PROMETHEUS_HOST
+            - name: BRIDGE_PROMETHEUS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: cloudos-config
+                  key:  BRIDGE_PROMETHEUS_PORT
+            - name: CLOUDOS_LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: cloudos-config
+                  key:  CLOUDOS_LOG_LEVEL
+            - name: ELECTRICITY_MAPS_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cloudos-secrets
+                  key:  ELECTRICITY_MAPS_API_KEY
+                  optional: true
+
+          volumeMounts:
+            - name: app-code
+              mountPath: /app
+            - name: config
+              mountPath: /app/config/settings.yaml
+              subPath:   settings.yaml
+            - name: data-pricing
+              mountPath: /app/data/pricing
+            - name: data-carbon
+              mountPath: /app/data/carbon
+
+          resources:
+            requests:
+              cpu:    "100m"
+              memory: "256Mi"
+            limits:
+              cpu:    "500m"
+              memory: "512Mi"
+
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 9090
+            initialDelaySeconds: 30
+            periodSeconds:       15
+            failureThreshold:    3
+
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 9090
+            initialDelaySeconds: 15
+            periodSeconds:       10
+
+      # ── HostAliases: resolve host.minikube.internal ───────────────────────
+      # Minikube adds this automatically, but explicit is safer
+     
+      volumes:
+        # Project code — mounted from host via Minikube hostPath
+        - name: app-code
+          hostPath:
+            path: /cloudos-rl    # see minikube_setup.ps1 — mounts project root here
+            type: DirectoryOrCreate
+
+        # Config from ConfigMap
+        - name: config
+          configMap:
+            name: cloudos-config
+            items:
+              - key:  settings.yaml
+                path: settings.yaml
+
+        # Data directories — persistent across pod restarts
+        - name: data-pricing
+          hostPath:
+            path: /cloudos-rl/data/pricing
+            type: DirectoryOrCreate
+
+        - name: data-carbon
+          hostPath:
+            path: /cloudos-rl/data/carbon
+            type: DirectoryOrCreate
+
+---
+
+# ── Service: ClusterIP ────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudos-bridge-svc
+  namespace: cloudos-rl
+  labels:
+    app.kubernetes.io/name:      cloudos-rl
+    app.kubernetes.io/component: bridge
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port:   "9090"
+spec:
+  selector:
+    app: cloudos-bridge
+  ports:
+    - name:       metrics
+      port:       9090
+      targetPort: 9090
+      protocol:   TCP
+  type: ClusterIP

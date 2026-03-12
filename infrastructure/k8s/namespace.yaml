@@ -1,0 +1,11 @@
+# =============================================================================
+# CloudOS-RL Namespace
+# =============================================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cloudos-rl
+  labels:
+    app.kubernetes.io/name:       cloudos-rl
+    app.kubernetes.io/managed-by: cloudos-operator
+    environment:                  development

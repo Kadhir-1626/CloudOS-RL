@@ -1,15 +1,29 @@
+# =============================================================================
+# CloudOS-RL Custom Resource Definition
+# CloudWorkload — represents a workload submission to the RL scheduler
+# =============================================================================
+# Usage:
+#   kubectl apply -f infrastructure/k8s/crd.yaml
+#   kubectl get cloudworkloads -n cloudos-rl
+#   kubectl describe cloudworkload my-ml-job -n cloudos-rl
+# =============================================================================
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: cloudosworkloads.cloudos.io
+  name: cloudworkloads.cloudos.ai
+  labels:
+    app.kubernetes.io/name:      cloudos-rl
+    app.kubernetes.io/component: crd
 spec:
-  group: cloudos.io
+  group: cloudos.ai
   scope: Namespaced
   names:
-    kind:     CloudOSWorkload
-    plural:   cloudosworkloads
-    singular: cloudosworkload
-    shortNames: [cow]
+    plural:   cloudworkloads
+    singular: cloudworkload
+    kind:     CloudWorkload
+    shortNames:
+      - cw
+      - cwl
   versions:
     - name: v1alpha1
       served:  true
@@ -17,55 +31,144 @@ spec:
       subresources:
         status: {}
       additionalPrinterColumns:
-        - name: Phase
-          type: string
-          jsonPath: .status.phase
-        - name: Cloud
-          type: string
-          jsonPath: .status.assignedCloud
-        - name: Region
-          type: string
-          jsonPath: .status.assignedRegion
-        - name: Cost$/hr
-          type: number
-          jsonPath: .status.estimatedCostPerHr
-        - name: Savings%
-          type: number
+        - name:     Cloud
+          type:     string
+          jsonPath: .status.scheduledCloud
+        - name:     Region
+          type:     string
+          jsonPath: .status.scheduledRegion
+        - name:     Instance
+          type:     string
+          jsonPath: .status.instanceType
+        - name:     CostSavings
+          type:     string
           jsonPath: .status.costSavingsPct
-        - name: Age
-          type: date
+        - name:     Phase
+          type:     string
+          jsonPath: .status.phase
+        - name:     Age
+          type:     date
           jsonPath: .metadata.creationTimestamp
       schema:
         openAPIV3Schema:
           type: object
+          required: ["spec"]
           properties:
             spec:
               type: object
-              required: [cpuRequest, memoryRequestGb, expectedDurationHours]
+              required: ["workloadType", "resources"]
               properties:
-                cpuRequest:             { type: number,  minimum: 0.1 }
-                memoryRequestGb:        { type: number,  minimum: 0.5 }
-                gpuCount:               { type: integer, minimum: 0   }
-                storageGb:              { type: number,  minimum: 1.0 }
-                networkBandwidthGbps:   { type: number,  minimum: 0.1 }
-                expectedDurationHours:  { type: number,  minimum: 0.01 }
-                priority:               { type: integer, minimum: 1, maximum: 4 }
-                slaLatencyMs:           { type: number,  minimum: 1.0 }
+
                 workloadType:
                   type: string
-                  enum: [batch, realtime, ml_training, web_service]
-                isSpotTolerant:         { type: boolean }
+                  enum: [training, inference, batch, streaming]
+                  description: "Type of cloud workload"
+
+                priority:
+                  type: integer
+                  minimum: 1
+                  maximum: 4
+                  default: 2
+                  description: "Scheduling priority (1=low, 4=critical)"
+
+                spotTolerant:
+                  type: boolean
+                  default: false
+                  description: "Whether this workload tolerates spot instance interruption"
+
+                resources:
+                  type: object
+                  required: ["cpu", "memory"]
+                  properties:
+                    cpu:
+                      type: string
+                      pattern: "^[0-9]+(\\.[0-9]+)?$"
+                      description: "CPU request in vCPUs (e.g. '4', '0.5')"
+                    memory:
+                      type: string
+                      pattern: "^[0-9]+(\\.[0-9]+)?(Gi|Mi|GB|MB)?$"
+                      description: "Memory request (e.g. '8Gi', '16GB')"
+                    gpu:
+                      type: integer
+                      minimum: 0
+                      default: 0
+                      description: "Number of GPUs required"
+                    storage:
+                      type: string
+                      default: "50Gi"
+                      description: "Storage request"
+                    networkBandwidthGbps:
+                      type: number
+                      minimum: 0.1
+                      default: 1.0
+
+                sla:
+                  type: object
+                  properties:
+                    maxLatencyMs:
+                      type: integer
+                      minimum: 10
+                      default: 200
+                      description: "Maximum acceptable scheduling latency in ms"
+                    tier:
+                      type: string
+                      enum: [best_effort, standard, premium, critical]
+                      default: standard
+
+                constraints:
+                  type: object
+                  properties:
+                    preferredClouds:
+                      type: array
+                      items:
+                        type: string
+                        enum: [aws, gcp, azure]
+                    excludeRegions:
+                      type: array
+                      items:
+                        type: string
+                    maxCostPerHr:
+                      type: number
+                      minimum: 0
+                    maxCarbonGco2PerKwh:
+                      type: number
+                      minimum: 0
+                      description: "Maximum acceptable carbon intensity"
+
+                expectedDurationHours:
+                  type: number
+                  minimum: 0.1
+                  default: 1.0
+
             status:
               type: object
               properties:
                 phase:
                   type: string
-                  enum: [Pending, Scheduled, Running, Completed, Failed]
-                decisionId:         { type: string }
-                assignedCloud:      { type: string }
-                assignedRegion:     { type: string }
-                instanceType:       { type: string }
-                estimatedCostPerHr: { type: number }
-                costSavingsPct:     { type: number }
-                carbonSavingsPct:   { type: number }
-                scheduledAt:        { type: string, format: date-time }
+                  enum: [Pending, Scheduling, Scheduled, Running, Completed, Failed]
+                scheduledCloud:
+                  type: string
+                scheduledRegion:
+                  type: string
+                instanceType:
+                  type: string
+                purchaseOption:
+                  type: string
+                estimatedCostPerHr:
+                  type: number
+                costSavingsPct:
+                  type: string
+                carbonSavingsPct:
+                  type: string
+                schedulingLatencyMs:
+                  type: number
+                decisionId:
+                  type: string
+                scheduledAt:
+                  type: string
+                  format: date-time
+                message:
+                  type: string
+                explanation:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
