@@ -22,7 +22,6 @@ Config section in settings.yaml:
 """
 
 import logging
-from pathlib import Path
 from typing import Any, Dict
 
 try:
@@ -34,22 +33,28 @@ logger = logging.getLogger(__name__)
 
 _DEFAULTS: Dict[str, Any] = {
     "kafka": {
-        "bootstrap_servers":       "localhost:9092",
-        "group_id":                "cloudos-consumers",
+        "bootstrap_servers": "localhost:9092",
+        "group_id": "cloudos-consumers",
+        "topics": {
+            "decisions": "cloudos.scheduling.decisions",
+            "metrics": "cloudos.metrics",
+            "alerts": "cloudos.alerts",
+            "workload": "cloudos.workload.events",
+        },
     },
     "prometheus": {
         "host": "0.0.0.0",
         "port": 9090,
     },
     "bridge": {
-        "poll_timeout_seconds":              1.0,
-        "max_messages_per_poll":             100,
-        "pipeline_metrics_push_interval":    30,
-        "decision_window_seconds":           60,
+        "poll_timeout_seconds": 1.0,
+        "max_messages_per_poll": 100,
+        "pipeline_metrics_push_interval": 30,
+        "decision_window_seconds": 60,
     },
     "data_pipeline": {
-        "carbon_output_path":   "data/carbon/carbon_intensity.json",
-        "pricing_output_path":  "data/pricing/aws_pricing.json",
+        "carbon_output_path": "data/carbon/carbon_intensity.json",
+        "pricing_output_path": "data/pricing/aws_pricing.json",
     },
 }
 
@@ -61,12 +66,51 @@ class BridgeConfig:
     is incomplete.
     """
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: Dict[str, Any]):
         self._raw = config
+        self._config = config
 
-    # -----------------------------------------------------------------------
-    # Factory
-    # -----------------------------------------------------------------------
+        kafka = config.get("kafka", {})
+        bridge = config.get("bridge", {})
+        prom = config.get("prometheus", {})
+        dp = config.get("data_pipeline", {})
+
+        # Attributes accessed directly by tests / runtime
+        self.bootstrap_servers = kafka.get("bootstrap_servers", "localhost:9092")
+        self.topics = kafka.get(
+            "topics",
+            {
+                "decisions": "cloudos.scheduling.decisions",
+                "metrics": "cloudos.metrics",
+                "alerts": "cloudos.alerts",
+                "workload": "cloudos.workload.events",
+            },
+        )
+        self.poll_timeout_seconds = float(bridge.get("poll_timeout_seconds", 1.0))
+        self.max_messages_per_poll = int(bridge.get("max_messages_per_poll", 100))
+        self.pipeline_metrics_push_interval = int(
+            bridge.get("pipeline_metrics_push_interval", 30)
+        )
+        self.decision_window_seconds = int(
+            bridge.get("decision_window_seconds", 60)
+        )
+        self.prometheus_host = prom.get("host", "0.0.0.0")
+        self.prometheus_port = int(prom.get("port", 9090))
+
+        self.pricing_path = dp.get(
+            "pricing_output_path", "data/pricing/aws_pricing.json"
+        )
+        self.carbon_path = dp.get(
+            "carbon_output_path", "data/carbon/carbon_intensity.json"
+        )
+
+        # Compatibility aliases for older code
+        self.kafka_bootstrap = self.bootstrap_servers
+        self.kafka_group_id = kafka.get("group_id", "cloudos-consumers")
+        self.poll_timeout = self.poll_timeout_seconds
+        self.max_per_poll = self.max_messages_per_poll
+        self.pipeline_push_interval = self.pipeline_metrics_push_interval
+        self.decision_window = self.decision_window_seconds
 
     @classmethod
     def from_yaml(cls, path: str = "config/settings.yaml") -> "BridgeConfig":
@@ -81,73 +125,15 @@ class BridgeConfig:
             logger.warning("BridgeConfig: load error (%s) — using defaults.", exc)
             raw = {}
 
-        # Deep-merge defaults with loaded config (loaded values take priority)
-        merged: Dict = {}
+        merged: Dict[str, Any] = {}
         for section, defaults in _DEFAULTS.items():
             merged[section] = {**defaults, **(raw.get(section, {}) or {})}
 
-        # Pass through any extra sections (aws, environment, etc.)
         for k, v in raw.items():
             if k not in merged:
                 merged[k] = v
 
         return cls(merged)
 
-    # -----------------------------------------------------------------------
-    # Kafka
-    # -----------------------------------------------------------------------
-
-    @property
-    def kafka_bootstrap(self) -> str:
-        return self._raw["kafka"]["bootstrap_servers"]
-
-    @property
-    def kafka_group_id(self) -> str:
-        return self._raw["kafka"]["group_id"]
-
-    # -----------------------------------------------------------------------
-    # Prometheus
-    # -----------------------------------------------------------------------
-
-    @property
-    def prometheus_host(self) -> str:
-        return self._raw["prometheus"]["host"]
-
-    @property
-    def prometheus_port(self) -> int:
-        return int(self._raw["prometheus"]["port"])
-
-    # -----------------------------------------------------------------------
-    # Bridge behaviour
-    # -----------------------------------------------------------------------
-
-    @property
-    def poll_timeout(self) -> float:
-        return float(self._raw["bridge"]["poll_timeout_seconds"])
-
-    @property
-    def max_per_poll(self) -> int:
-        return int(self._raw["bridge"]["max_messages_per_poll"])
-
-    @property
-    def pipeline_push_interval(self) -> int:
-        return int(self._raw["bridge"]["pipeline_metrics_push_interval"])
-
-    @property
-    def decision_window(self) -> int:
-        return int(self._raw["bridge"]["decision_window_seconds"])
-
-    # -----------------------------------------------------------------------
-    # Data paths (for reading pipeline output files)
-    # -----------------------------------------------------------------------
-
-    @property
-    def carbon_path(self) -> str:
-        return self._raw["data_pipeline"]["carbon_output_path"]
-
-    @property
-    def pricing_path(self) -> str:
-        return self._raw["data_pipeline"]["pricing_output_path"]
-
-    def raw(self) -> Dict:
+    def raw(self) -> Dict[str, Any]:
         return dict(self._raw)

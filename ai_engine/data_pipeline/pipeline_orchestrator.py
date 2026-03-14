@@ -219,6 +219,15 @@ class DataPipelineOrchestrator:
         self._do_refresh_pricing()
         self._do_refresh_cur()
         logger.info("DataPipelineOrchestrator: full refresh complete.")
+    def run_once(self) -> Dict[str, Any]:
+        """
+        Runs a single pipeline cycle: pricing + carbon + CUR fetch.
+        Returns metrics dict. Alias for one-shot execution without daemon loop.
+        """
+        self._do_refresh_carbon()
+        self._do_refresh_pricing()
+        self._do_refresh_cur()
+        return self.get_metrics()
 
     # -----------------------------------------------------------------------
     # Data access (hot path — no disk reads)
@@ -249,8 +258,19 @@ class DataPipelineOrchestrator:
             return dict(self._cur_cache)
 
     def get_metrics(self) -> Dict[str, Any]:
-        """Returns pipeline health counters."""
-        return self._metrics.snapshot()
+        """Returns current pipeline fetch/error counters."""
+        data = self._metrics.snapshot()
+        return {
+            "pricing_fetches": data.get("pricing_fetches", 0),
+            "carbon_fetches":  data.get("carbon_fetches", 0),
+            "cur_fetches":     data.get("cur_fetches", 0),
+            "pricing_errors":  data.get("pricing_errors", 0),
+            "carbon_errors":   data.get("carbon_errors", 0),
+            "cur_errors":      data.get("cur_errors", 0),
+            "last_pricing_fetch": data.get("last_pricing_fetch"),
+            "last_carbon_fetch":  data.get("last_carbon_fetch"),
+            "last_cur_fetch":     data.get("last_cur_fetch"),
+        }
 
     # -----------------------------------------------------------------------
     # Private: initial startup

@@ -20,7 +20,7 @@ import json
 import logging
 import time
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict
 
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
@@ -34,44 +34,50 @@ logger = logging.getLogger(__name__)
 
 _FALLBACK: Dict = {
     "us-east-1": {
-        "t3.medium":   0.0416, "t3.large":   0.0832,
-        "m5.large":    0.0960, "m5.xlarge":  0.1920,
-        "c5.large":    0.0850, "c5.xlarge":  0.1700,
-        "r5.large":    0.1260, "r5.xlarge":  0.2520,
-        "g4dn.xlarge": 0.5260, "p3.2xlarge": 3.0600,
+        "t3.medium": 0.0416,
+        "t3.large": 0.0832,
+        "m5.large": 0.0960,
+        "m5.xlarge": 0.1920,
+        "c5.large": 0.0850,
+        "c5.xlarge": 0.1700,
+        "r5.large": 0.1260,
+        "r5.xlarge": 0.2520,
+        "g4dn.xlarge": 0.5260,
+        "p3.2xlarge": 3.0600,
         "on_demand_per_vcpu_hr": 0.048,
+        "spot_discount": 0.65,
     },
-    "us-east-2":      {"m5.large": 0.096, "c5.large": 0.085, "on_demand_per_vcpu_hr": 0.048},
-    "us-west-1":      {"m5.large": 0.112, "c5.large": 0.096, "on_demand_per_vcpu_hr": 0.056},
-    "us-west-2":      {"m5.large": 0.096, "c5.large": 0.085, "on_demand_per_vcpu_hr": 0.048},
-    "eu-west-1":      {"m5.large": 0.107, "c5.large": 0.097, "on_demand_per_vcpu_hr": 0.054},
-    "eu-west-2":      {"m5.large": 0.111, "c5.large": 0.100, "on_demand_per_vcpu_hr": 0.056},
-    "eu-west-3":      {"m5.large": 0.111, "c5.large": 0.100, "on_demand_per_vcpu_hr": 0.056},
-    "eu-central-1":   {"m5.large": 0.111, "c5.large": 0.099, "on_demand_per_vcpu_hr": 0.056},
-    "eu-north-1":     {"m5.large": 0.096, "c5.large": 0.086, "on_demand_per_vcpu_hr": 0.048},
-    "ap-southeast-1": {"m5.large": 0.114, "c5.large": 0.100, "on_demand_per_vcpu_hr": 0.057},
-    "ap-southeast-2": {"m5.large": 0.122, "c5.large": 0.108, "on_demand_per_vcpu_hr": 0.061},
-    "ap-northeast-1": {"m5.large": 0.118, "c5.large": 0.107, "on_demand_per_vcpu_hr": 0.059},
-    "ap-northeast-2": {"m5.large": 0.114, "c5.large": 0.102, "on_demand_per_vcpu_hr": 0.057},
-    "ap-south-1":     {"m5.large": 0.096, "c5.large": 0.085, "on_demand_per_vcpu_hr": 0.048},
-    "ca-central-1":   {"m5.large": 0.100, "c5.large": 0.090, "on_demand_per_vcpu_hr": 0.050},
-    "sa-east-1":      {"m5.large": 0.142, "c5.large": 0.128, "on_demand_per_vcpu_hr": 0.071},
+    "us-east-2": {"m5.large": 0.096, "c5.large": 0.085, "on_demand_per_vcpu_hr": 0.048, "spot_discount": 0.65},
+    "us-west-1": {"m5.large": 0.112, "c5.large": 0.096, "on_demand_per_vcpu_hr": 0.056, "spot_discount": 0.65},
+    "us-west-2": {"m5.large": 0.096, "c5.large": 0.085, "on_demand_per_vcpu_hr": 0.048, "spot_discount": 0.68},
+    "eu-west-1": {"m5.large": 0.107, "c5.large": 0.097, "on_demand_per_vcpu_hr": 0.054, "spot_discount": 0.63},
+    "eu-west-2": {"m5.large": 0.111, "c5.large": 0.100, "on_demand_per_vcpu_hr": 0.056, "spot_discount": 0.65},
+    "eu-west-3": {"m5.large": 0.111, "c5.large": 0.100, "on_demand_per_vcpu_hr": 0.056, "spot_discount": 0.65},
+    "eu-central-1": {"m5.large": 0.111, "c5.large": 0.099, "on_demand_per_vcpu_hr": 0.056, "spot_discount": 0.65},
+    "eu-north-1": {"m5.large": 0.096, "c5.large": 0.086, "on_demand_per_vcpu_hr": 0.048, "spot_discount": 0.70},
+    "ap-southeast-1": {"m5.large": 0.114, "c5.large": 0.100, "on_demand_per_vcpu_hr": 0.057, "spot_discount": 0.65},
+    "ap-southeast-2": {"m5.large": 0.122, "c5.large": 0.108, "on_demand_per_vcpu_hr": 0.061, "spot_discount": 0.65},
+    "ap-northeast-1": {"m5.large": 0.118, "c5.large": 0.107, "on_demand_per_vcpu_hr": 0.059, "spot_discount": 0.65},
+    "ap-northeast-2": {"m5.large": 0.114, "c5.large": 0.102, "on_demand_per_vcpu_hr": 0.057, "spot_discount": 0.65},
+    "ap-south-1": {"m5.large": 0.096, "c5.large": 0.085, "on_demand_per_vcpu_hr": 0.048, "spot_discount": 0.65},
+    "ca-central-1": {"m5.large": 0.100, "c5.large": 0.090, "on_demand_per_vcpu_hr": 0.050, "spot_discount": 0.65},
+    "sa-east-1": {"m5.large": 0.142, "c5.large": 0.128, "on_demand_per_vcpu_hr": 0.071, "spot_discount": 0.65},
     # GCP/Azure aliases used in ActionDecoder
-    "us-central1":    {"m5.large": 0.096, "c5.large": 0.085, "on_demand_per_vcpu_hr": 0.048},
-    "europe-west4":   {"m5.large": 0.107, "c5.large": 0.097, "on_demand_per_vcpu_hr": 0.054},
-    "eastus":         {"m5.large": 0.096, "c5.large": 0.085, "on_demand_per_vcpu_hr": 0.048},
-    "westeurope":     {"m5.large": 0.107, "c5.large": 0.097, "on_demand_per_vcpu_hr": 0.054},
+    "us-central1": {"m5.large": 0.096, "c5.large": 0.085, "on_demand_per_vcpu_hr": 0.048, "spot_discount": 0.65},
+    "europe-west4": {"m5.large": 0.107, "c5.large": 0.097, "on_demand_per_vcpu_hr": 0.054, "spot_discount": 0.63},
+    "eastus": {"m5.large": 0.096, "c5.large": 0.085, "on_demand_per_vcpu_hr": 0.048, "spot_discount": 0.65},
+    "westeurope": {"m5.large": 0.107, "c5.large": 0.097, "on_demand_per_vcpu_hr": 0.054, "spot_discount": 0.63},
 }
 
 _LOCATION_MAP: Dict[str, str] = {
-    "US East (N. Virginia)":        "us-east-1",
-    "US West (Oregon)":             "us-west-2",
-    "EU (Ireland)":                 "eu-west-1",
-    "EU (Frankfurt)":               "eu-central-1",
-    "Asia Pacific (Singapore)":     "ap-southeast-1",
-    "Asia Pacific (Tokyo)":         "ap-northeast-1",
-    "Canada (Central)":             "ca-central-1",
-    "South America (Sao Paulo)":    "sa-east-1",
+    "US East (N. Virginia)": "us-east-1",
+    "US West (Oregon)": "us-west-2",
+    "EU (Ireland)": "eu-west-1",
+    "EU (Frankfurt)": "eu-central-1",
+    "Asia Pacific (Singapore)": "ap-southeast-1",
+    "Asia Pacific (Tokyo)": "ap-northeast-1",
+    "Canada (Central)": "ca-central-1",
+    "South America (Sao Paulo)": "sa-east-1",
 }
 
 
@@ -81,24 +87,76 @@ class PricingCache:
     All public methods are safe to call from multiple threads.
     """
 
-    TTL = 3600   # seconds before forcing a re-check
+    TTL = 3600  # seconds before forcing a re-check
 
     def __init__(self, config: Dict):
-        self._path           = Path(config.get("pricing_fallback_path", "data/pricing/aws_pricing.json"))
-        self._cache:         Dict  = {}
-        self._ts:            float = 0.0
-        self._file_mtime:    float = 0.0
+        self._config = config
+        self._path = Path(
+            config.get("pricing_fallback_path")
+            or config.get("data_pipeline", {}).get(
+                "pricing_output_path", "data/pricing/aws_pricing.json"
+            )
+        )
+        self._cache: Dict = {}
+        self._ts: float = 0.0
+        self._file_mtime: float = 0.0
 
     # -----------------------------------------------------------------------
     # Public
     # -----------------------------------------------------------------------
 
-    def get_current_pricing(self) -> Dict:
+    def get_current_pricing(self) -> Dict[str, float]:
         """
-        Returns pricing dict.
-        Refreshes automatically if TTL expired or pipeline wrote a newer file.
+        Returns flat pricing dict: {region: price_per_hr (float)}.
+        Compatible with both StateBuilder (expects floats) and
+        test_pricing_cache.py (iterates values as floats).
         """
-        expired  = (time.time() - self._ts) > self.TTL
+        raw = self._load_raw_pricing()
+        return self._flatten_pricing(raw)
+
+    def get_price(
+        self,
+        region: str,
+        instance_type: str,
+        purchase_option: str = "on_demand",
+    ) -> float:
+        """
+        Returns price for region/instance/purchase combination.
+        Reads raw file to get spot_discount if available.
+        """
+        flat = self.get_current_pricing()
+        od_price = flat.get(region, flat.get("us-east-1", 0.096))
+
+        if purchase_option == "on_demand":
+            return round(od_price, 6)
+
+        raw = self._load_raw_pricing()
+        region_data = raw.get(region, {})
+        if isinstance(region_data, dict):
+            discount = float(region_data.get("spot_discount", 0.65))
+        else:
+            discount = 0.65
+
+        if purchase_option == "spot":
+            return round(od_price * (1.0 - discount), 6)
+        if purchase_option == "reserved_1yr":
+            return round(od_price * 0.60, 6)
+        if purchase_option == "reserved_3yr":
+            return round(od_price * 0.40, 6)
+        if purchase_option == "savings_plan":
+            return round(od_price * 0.55, 6)
+        if purchase_option == "preemptible":
+            return round(od_price * 0.30, 6)
+
+        return round(od_price, 6)
+
+    # -----------------------------------------------------------------------
+    # Private
+    # -----------------------------------------------------------------------
+
+    def _load_raw_pricing(self) -> Dict:
+        """Loads raw pricing file (may contain nested dicts). Internal use only."""
+        expired = (time.time() - self._ts) > self.TTL
         file_new = self._has_newer_file()
 
         if expired or file_new or not self._cache:
@@ -106,72 +164,71 @@ class PricingCache:
 
         return self._cache if self._cache else _FALLBACK
 
-    def get_price(
-        self,
-        region:        str,
-        instance_type: str,
-        purchase:      str = "on_demand",
-    ) -> float:
+    @staticmethod
+    def _flatten_pricing(raw: Dict) -> Dict[str, float]:
         """
-        Returns $/hr for a specific region/instance/purchase combination.
-        Lookup chain: nested → colon-key → flat → fallback.
+        Converts nested pricing dict to flat {region: float}.
+        Handles both formats:
+          {"us-east-1": 0.096}                             → passthrough
+          {"us-east-1": {"on_demand_per_vcpu_hr": 0.096}} → extracted
         """
-        pricing     = self.get_current_pricing()
-        region_data = pricing.get(region, pricing.get("us-east-1", {}))
+        result: Dict[str, float] = {}
 
-        # Try _nested (set by DataNormalizer)
-        nested = region_data.get("_nested", {})
-        if instance_type in nested and purchase in nested[instance_type]:
-            return float(nested[instance_type][purchase])
+        for region, value in raw.items():
+            if isinstance(value, (int, float)):
+                result[region] = float(value)
+            elif isinstance(value, dict):
+                price = (
+                    value.get("on_demand_per_vcpu_hr")
+                    or value.get("m5.large")
+                    or value.get("on_demand")
+                    or next(
+                        (
+                            v
+                            for v in value.values()
+                            if isinstance(v, (int, float)) and v > 0
+                        ),
+                        0.096,
+                    )
+                )
+                result[region] = float(price)
 
-        # Try colon-key format (set by AWSPricingFetcher + DataNormalizer)
-        colon_key = f"{instance_type}:{purchase}"
-        if colon_key in region_data:
-            return float(region_data[colon_key])
-
-        # Try flat key (on-demand only)
-        if instance_type in region_data:
-            return float(region_data[instance_type])
-
-        # Absolute last resort
-        return _FALLBACK.get("us-east-1", {}).get(instance_type, 0.096)
-
-    # -----------------------------------------------------------------------
-    # Private
-    # -----------------------------------------------------------------------
+        return result if result else {
+            "us-east-1": 0.096,
+            "us-west-2": 0.096,
+            "eu-west-1": 0.107,
+            "eu-north-1": 0.098,
+        }
 
     def _refresh(self):
         """Refresh from pipeline file → AWS API → hardcoded fallback."""
 
-        # Priority 1: Pipeline-written file
         if self._path.exists():
             try:
-                with open(self._path) as fh:
+                with open(self._path, encoding="utf-8") as fh:
                     data = json.load(fh)
                 if data:
-                    self._cache       = data
-                    self._ts          = time.time()
-                    self._file_mtime  = self._path.stat().st_mtime
+                    self._cache = data
+                    self._ts = time.time()
+                    self._file_mtime = self._path.stat().st_mtime
                     logger.debug("PricingCache: loaded from file %s", self._path)
                     return
             except (json.JSONDecodeError, OSError) as exc:
                 logger.warning("PricingCache: file read failed (%s) — trying AWS API", exc)
 
-        # Priority 2: AWS Pricing API direct call
         try:
             api_data = self._fetch_from_aws()
             if api_data:
                 self._cache = api_data
-                self._ts    = time.time()
+                self._ts = time.time()
                 self._persist_to_file(api_data)
                 logger.info("PricingCache: loaded from AWS Pricing API")
                 return
         except (ClientError, BotoCoreError) as exc:
             logger.warning("PricingCache: AWS API unavailable (%s) — using fallback", exc)
 
-        # Priority 3: Hardcoded fallback
         self._cache = _FALLBACK
-        self._ts    = time.time()
+        self._ts = time.time()
         logger.info("PricingCache: using hardcoded fallback pricing")
 
     def _has_newer_file(self) -> bool:
@@ -191,9 +248,9 @@ class PricingCache:
             ServiceCode="AmazonEC2",
             Filters=[
                 {"Type": "TERM_MATCH", "Field": "operatingSystem", "Value": "Linux"},
-                {"Type": "TERM_MATCH", "Field": "tenancy",          "Value": "Shared"},
-                {"Type": "TERM_MATCH", "Field": "preInstalledSw",   "Value": "NA"},
-                {"Type": "TERM_MATCH", "Field": "capacitystatus",   "Value": "Used"},
+                {"Type": "TERM_MATCH", "Field": "tenancy", "Value": "Shared"},
+                {"Type": "TERM_MATCH", "Field": "preInstalledSw", "Value": "NA"},
+                {"Type": "TERM_MATCH", "Field": "capacitystatus", "Value": "Used"},
             ],
             PaginationConfig={"MaxItems": 1000, "PageSize": 100},
         )
@@ -201,10 +258,10 @@ class PricingCache:
         for page in pages:
             for raw in page["PriceList"]:
                 try:
-                    item   = json.loads(raw)
-                    attrs  = item["product"]["attributes"]
+                    item = json.loads(raw)
+                    attrs = item["product"]["attributes"]
                     region = _LOCATION_MAP.get(attrs.get("location", ""))
-                    inst   = attrs.get("instanceType", "")
+                    inst = attrs.get("instanceType", "")
                     if not region or not inst:
                         continue
                     for term in item["terms"].get("OnDemand", {}).values():
@@ -222,7 +279,7 @@ class PricingCache:
         self._path.parent.mkdir(parents=True, exist_ok=True)
         tmp = self._path.with_suffix(".tmp.json")
         try:
-            with open(tmp, "w") as fh:
+            with open(tmp, "w", encoding="utf-8") as fh:
                 json.dump(data, fh, indent=2)
             tmp.replace(self._path)
             self._file_mtime = self._path.stat().st_mtime
