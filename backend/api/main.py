@@ -1,56 +1,65 @@
+"""
+CloudOS-RL FastAPI Application
+================================
+Entry point for the scheduling API.
+"""
+
 import logging
-import time
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from prometheus_client import make_asgi_app
+from fastapi.responses import JSONResponse
 
-from backend.api.routes import metrics, scheduling
-from backend.core.config import Settings
-from backend.core.metrics_store import MetricsStore
+from backend.core.agent_singleton import startup_initialise, is_ready, get_agent
 
-logger   = logging.getLogger(__name__)
-settings = Settings()
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s  %(name)-40s  %(levelname)s  %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logging.basicConfig(
-        level=getattr(logging, settings.LOG_LEVEL),
-        format="%(asctime)s %(name)s %(levelname)s %(message)s",
-    )
-    app.state.metrics_store = MetricsStore()
-    app.state.start_time    = time.time()
-    logger.info("CloudOS-RL API started")
+    """Startup: load agent in background. Shutdown: flush Kafka."""
+    logger.info("CloudOS-RL API starting — loading RL agent in background ...")
+    startup_initialise()
     yield
-    logger.info("CloudOS-RL API shutting down")
+    logger.info("CloudOS-RL API shutting down.")
 
 
 app = FastAPI(
-    title="CloudOS-RL",
-    description="RL-driven multi-cloud workload scheduler",
+    title="CloudOS-RL Scheduling API",
+    description="AI-native multi-cloud workload scheduler powered by PPO reinforcement learning.",
     version="1.0.0",
     lifespan=lifespan,
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
-    allow_credentials=True,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.mount("/metrics", make_asgi_app())
+# ── Routes ────────────────────────────────────────────────────────────────────
+from backend.api.routes.scheduling import router as scheduling_router
+app.include_router(scheduling_router)
 
-app.include_router(scheduling.router, prefix="/api/v1/schedule",  tags=["scheduling"])
-app.include_router(metrics.router,    prefix="/api/v1/metrics",   tags=["metrics"])
 
-
-@app.get("/health", tags=["system"])
+# ── Health ────────────────────────────────────────────────────────────────────
+@app.get("/health", tags=["health"])
 async def health():
+    agent = get_agent()
     return {
-        "status": "ok",
-        "uptime_s": round(time.time() - app.state.start_time, 2),
+        "status":       "ok",
+        "agent_loaded": agent is not None,
+        "shap_ready":   agent._explainer is not None if agent else False,
+        "ready":        is_ready(),
     }
+
+
+@app.get("/", tags=["health"])
+async def root():
+    return {"service": "cloudos-rl-api", "version": "1.0.0"}

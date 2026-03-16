@@ -1,68 +1,340 @@
+"""
+Scheduling API Routes
+======================
+POST /api/v1/schedule       — submit workload, get RL placement decision
+GET  /api/v1/decisions      — list recent decisions (last 100)
+GET  /api/v1/decisions/{id} — get single decision with full SHAP explanation
+POST /api/v1/batch          — submit multiple workloads, get decisions in parallel
+GET  /api/v1/status         — agent status (model loaded, SHAP ready, last decision)
+"""
+
 import logging
 import time
 import uuid
 from typing import Optional
 
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Request
-from prometheus_client import Counter, Histogram
+import yaml
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 
-from ai_engine.inference.scheduler_agent import SchedulerAgent
-from backend.api.models.schemas import SchedulingDecision, WorkloadRequest
+from ai_engine.operator.operator import CloudOSOperator
+from backend.api.models.schemas import (
+    AgentStatusResponse,
+    BatchSchedulingResponse,
+    BatchWorkloadRequest,
+    DecisionListResponse,
+    SchedulingDecision,
+    WorkloadRequest,
+)
+from backend.core.agent_singleton import get_agent, get_producer
+from backend.core.decision_store import DecisionStore
 
-logger    = logging.getLogger(__name__)
-router    = APIRouter()
+logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/api/v1", tags=["scheduling"])
 
-_REQUESTS  = Counter("cloudos_schedule_requests_total",   "Total scheduling requests")
-_LATENCY   = Histogram("cloudos_schedule_latency_seconds", "Scheduling latency")
-_COST_SAVE = Histogram("cloudos_cost_savings_ratio",       "Cost savings fraction", buckets=[0, .05, .1, .2, .3, .5, 1])
-
-_agent: Optional[SchedulerAgent] = None
+# Module-level decision store (in-memory ring buffer, last 1000 decisions)
+_decision_store = DecisionStore(max_size=1000)
 
 
-def _get_agent() -> SchedulerAgent:
-    global _agent
-    if _agent is None:
-        _agent = SchedulerAgent.load()
-    return _agent
+# =============================================================================
+# Internal helpers
+# =============================================================================
+
+def _load_config() -> dict:
+    """Load application config safely."""
+    try:
+        with open("config/settings.yaml", "r", encoding="utf-8") as f:
+            return yaml.safe_load(f) or {}
+    except FileNotFoundError:
+        logger.warning("config/settings.yaml not found; using empty config")
+        return {}
+    except Exception as exc:
+        logger.warning("Failed to load config/settings.yaml: %s", exc)
+        return {}
 
 
-@router.post("/", response_model=SchedulingDecision)
-async def schedule(
-    payload: WorkloadRequest,
-    bg: BackgroundTasks,
-    req: Request,
-):
-    _REQUESTS.inc()
+def _heuristic_fallback_decision(request: WorkloadRequest) -> SchedulingDecision:
+    """
+    Use CloudOSOperator heuristic decision path when the RL agent
+    is still loading, instead of returning HTTP 503.
+    """
+    config = _load_config()
+
+    op = CloudOSOperator(
+        config=config,
+        dry_run=True,
+        no_kafka=True,
+        no_shap=True,
+    )
+    op._agent = None
+
+    workload = request.to_agent_dict()
+
+    fallback_workload_id = (
+        getattr(request, "workload_id", None)
+        or workload.get("workload_id")
+        or "api-fallback"
+    )
+    workload["workload_id"] = fallback_workload_id
+
+    raw = op._heuristic_decision(workload)
+    raw["decision_id"] = str(uuid.uuid4())
+    raw["latency_ms"] = 1.0
+    raw["workload_id"] = fallback_workload_id
+
+    return SchedulingDecision(**raw)
+
+
+# =============================================================================
+# POST /api/v1/schedule
+# =============================================================================
+
+@router.post(
+    "/schedule",
+    response_model=SchedulingDecision,
+    status_code=status.HTTP_200_OK,
+    summary="Submit a workload for RL scheduling",
+    description="""
+    Accepts a workload specification and returns an RL-generated placement
+    decision including cloud, region, instance type, purchase option,
+    cost/carbon savings, and SHAP explainability.
+
+    Decision latency target: p95 < 100ms.
+    """,
+)
+async def schedule_workload(
+    request: WorkloadRequest,
+    background_tasks: BackgroundTasks,
+    agent=Depends(get_agent),
+    producer=Depends(get_producer),
+) -> SchedulingDecision:
+    if agent is None:
+        decision = _heuristic_fallback_decision(request)
+        background_tasks.add_task(
+            _publish_and_store,
+            producer,
+            decision,
+            request.to_agent_dict(),
+            _decision_store,
+        )
+        return decision
+
     t0 = time.perf_counter()
+    decision_id = str(uuid.uuid4())
+
+    workload = request.to_agent_dict()
+    workload["workload_id"] = decision_id
 
     try:
-        agent    = _get_agent()
-        state    = agent.build_state(payload.model_dump())
-        decision, explanation = agent.decide(state)
-
-        latency_ms = (time.perf_counter() - t0) * 1000.0
-        _LATENCY.observe(latency_ms / 1000.0)
-
-        result = SchedulingDecision(
-            decision_id         = str(uuid.uuid4()),
-            workload_id         = payload.workload_id,
-            cloud               = decision["cloud"],
-            region              = decision["region"],
-            instance_type       = decision["instance_type"],
-            scaling_level       = decision["scaling_level"],
-            purchase_option     = decision["purchase_option"],
-            sla_tier            = decision["sla_tier"],
-            estimated_cost_per_hr = agent.estimate_cost_per_hr(decision),
-            cost_savings_pct    = agent.cost_savings_pct(decision),
-            carbon_savings_pct  = agent.carbon_savings_pct(decision),
-            latency_ms          = latency_ms,
-            explanation         = explanation,
+        raw = agent.decide(workload)
+    except Exception as exc:
+        logger.error("SchedulerAgent.decide failed: %s", exc, exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"RL inference error: {str(exc)[:200]}",
         )
 
-        _COST_SAVE.observe(result.cost_savings_pct / 100.0)
-        bg.add_task(req.app.state.metrics_store.record_decision, result.model_dump())
-        return result
+    if raw is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Agent returned no decision. Model may be uninitialised.",
+        )
 
-    except Exception as exc:
-        logger.exception("Scheduling failed: %s", exc)
-        raise HTTPException(status_code=500, detail=str(exc))
+    total_latency_ms = (time.perf_counter() - t0) * 1000
+    raw["decision_id"] = decision_id
+    raw["latency_ms"] = round(total_latency_ms, 2)
+
+    decision = SchedulingDecision(
+        **raw,
+        workload_id=getattr(request, "workload_id", None) or decision_id,
+    )
+
+    background_tasks.add_task(
+        _publish_and_store,
+        producer,
+        decision,
+        workload,
+        _decision_store,
+    )
+
+    logger.info(
+        "Decision %s: %s/%s %s cost=%.4f/hr savings=%.1f%% %.0fms",
+        decision_id[:8],
+        decision.cloud,
+        decision.region,
+        decision.purchase_option,
+        decision.estimated_cost_per_hr,
+        decision.cost_savings_pct,
+        total_latency_ms,
+    )
+
+    return decision
+
+
+# =============================================================================
+# POST /api/v1/batch
+# =============================================================================
+
+@router.post(
+    "/batch",
+    response_model=BatchSchedulingResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Submit multiple workloads for batch scheduling",
+)
+async def schedule_batch(
+    request: BatchWorkloadRequest,
+    background_tasks: BackgroundTasks,
+    agent=Depends(get_agent),
+    producer=Depends(get_producer),
+) -> BatchSchedulingResponse:
+    if len(request.workloads) > 50:
+        raise HTTPException(status_code=400, detail="Maximum 50 workloads per batch")
+
+    decisions = []
+    errors = []
+    t0 = time.perf_counter()
+
+    for i, wl_req in enumerate(request.workloads):
+        try:
+            if agent is None:
+                d = _heuristic_fallback_decision(wl_req)
+                decisions.append(d)
+                background_tasks.add_task(
+                    _publish_and_store,
+                    producer,
+                    d,
+                    wl_req.to_agent_dict(),
+                    _decision_store,
+                )
+                continue
+
+            workload = wl_req.to_agent_dict()
+            workload["workload_id"] = str(uuid.uuid4())
+
+            raw = agent.decide(workload)
+            if raw:
+                raw["decision_id"] = workload["workload_id"]
+                d = SchedulingDecision(
+                    **raw,
+                    workload_id=getattr(wl_req, "workload_id", None) or f"batch-{i}",
+                )
+                decisions.append(d)
+                background_tasks.add_task(
+                    _publish_and_store,
+                    producer,
+                    d,
+                    workload,
+                    _decision_store,
+                )
+            else:
+                errors.append(
+                    {
+                        "index": i,
+                        "error": "Agent returned no decision. Model may be uninitialised.",
+                    }
+                )
+        except Exception as exc:
+            errors.append({"index": i, "error": str(exc)[:200]})
+
+    return BatchSchedulingResponse(
+        decisions=decisions,
+        errors=errors,
+        total_latency_ms=round((time.perf_counter() - t0) * 1000, 2),
+        count=len(decisions),
+    )
+
+
+# =============================================================================
+# GET /api/v1/decisions
+# =============================================================================
+
+@router.get(
+    "/decisions",
+    response_model=DecisionListResponse,
+    summary="List recent scheduling decisions",
+)
+async def list_decisions(
+    limit: int = 20,
+    cloud: Optional[str] = None,
+    region: Optional[str] = None,
+) -> DecisionListResponse:
+    decisions = _decision_store.list(limit=limit, cloud=cloud, region=region)
+    return DecisionListResponse(decisions=decisions, count=len(decisions))
+
+
+# =============================================================================
+# GET /api/v1/decisions/{decision_id}
+# =============================================================================
+
+@router.get(
+    "/decisions/{decision_id}",
+    response_model=SchedulingDecision,
+    summary="Get a single decision with full SHAP explanation",
+)
+async def get_decision(decision_id: str) -> SchedulingDecision:
+    d = _decision_store.get(decision_id)
+    if d is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=(
+                f"Decision {decision_id} not found. "
+                f"Decisions are kept in memory for the lifetime of this pod."
+            ),
+        )
+    return d
+
+
+# =============================================================================
+# GET /api/v1/status
+# =============================================================================
+
+@router.get(
+    "/status",
+    response_model=AgentStatusResponse,
+    summary="Agent and system status",
+)
+async def agent_status(agent=Depends(get_agent)) -> AgentStatusResponse:
+    last = _decision_store.last()
+    return AgentStatusResponse(
+        agent_loaded=agent is not None,
+        model_path=str(agent._config.get("model", {}).get("path", "")) if agent else "",
+        shap_ready=agent._explainer is not None if agent else False,
+        background_shape=(
+            list(agent._explainer.get_background_shape())
+            if agent and agent._explainer
+            else []
+        ),
+        decisions_served=_decision_store.total_count(),
+        last_decision_id=last.decision_id if last else None,
+        last_decision_cloud=last.cloud if last else None,
+        last_decision_region=last.region if last else None,
+    )
+
+
+# =============================================================================
+# Background task helpers
+# =============================================================================
+
+async def _publish_and_store(producer, decision, workload, store):
+    """Non-blocking: publish to Kafka and store in ring buffer."""
+    store.put(decision)
+    if producer is not None:
+        try:
+            producer.publish_decision(
+                {
+                    "decision_id": decision.decision_id,
+                    "workload_id": decision.workload_id,
+                    "cloud": decision.cloud,
+                    "region": decision.region,
+                    "instance_type": decision.instance_type,
+                    "purchase_option": decision.purchase_option,
+                    "cost_savings_pct": decision.cost_savings_pct,
+                    "carbon_savings_pct": decision.carbon_savings_pct,
+                    "latency_ms": decision.latency_ms,
+                    "estimated_cost_per_hr": decision.estimated_cost_per_hr,
+                    "workload_type": workload.get("workload_type", "batch"),
+                    "explanation": decision.explanation or {},
+                    "actual_reward": getattr(decision, "actual_reward", None),
+                }
+            )
+        except Exception as exc:
+            logger.warning("Kafka publish failed (non-fatal): %s", exc)

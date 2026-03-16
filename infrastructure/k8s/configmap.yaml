@@ -13,13 +13,13 @@ metadata:
 data:
   # ── Core settings (injected as env vars) ─────────────────────────────────
   CLOUDOS_AWS_REGION:          "us-east-1"
-  CLOUDOS_MODEL_PATH:          "/app/models/best/best_model"
+  CLOUDOS_MODEL_PATH: "/app/models/best_model.zip"
   CLOUDOS_VECNORM_PATH:        "/app/models/vec_normalize.pkl"
   CLOUDOS_LOG_LEVEL:           "INFO"
 
   # Kafka — points to host running natively on Windows
   # host.minikube.internal resolves to the Windows host from inside Minikube
-  CLOUDOS_KAFKA_BOOTSTRAP:     "host.minikube.internal:9092"
+  CLOUDOS_KAFKA_BOOTSTRAP: host.docker.internal:9092
 
   # Prometheus — Minikube pods cannot reach localhost:9091 directly
   # They must use host.minikube.internal
@@ -43,7 +43,7 @@ data:
       pricing_refresh_sec: 3600
 
     kafka:
-      bootstrap_servers: host.minikube.internal:9092
+      bootstrap_servers: host.docker.internal:9092
       group_id: cloudos-rl-k8s
       topics:
         decisions:    cloudos.scheduling.decisions
@@ -71,7 +71,7 @@ data:
       anomaly_threshold_pct:      50.0
 
     model:
-      path:       /app/models/best/best_model
+      path:       /app/models/best_model.zip
       vecnorm:    /app/models/vec_normalize.pkl
 
     environment_config:

@@ -43,12 +43,10 @@ Compatible with:
 
 import json
 import logging
-import signal
 import sys
 import threading
 import time
 from collections import deque
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Deque, Dict, Optional
 
@@ -65,7 +63,7 @@ except ImportError:
     )
 
 try:
-    from prometheus_client import start_http_server, REGISTRY
+    from prometheus_client import start_http_server
 except ImportError:
     raise ImportError(
         "\n\nprometheus-client is not installed.\n"
@@ -74,33 +72,33 @@ except ImportError:
 
 from ai_engine.kafka.bridge_config import BridgeConfig
 from ai_engine.kafka.metrics_registry import (
-    DECISIONS_TOTAL,
+    ACTIVE_DECISIONS,
     ALERTS_TOTAL,
-    WORKLOAD_EVENTS_TOTAL,
     BRIDGE_MESSAGES_CONSUMED,
     BRIDGE_PARSE_ERRORS,
-    INFERENCE_LATENCY,
-    COST_SAVINGS_RATIO,
+    BRIDGE_UP,
+    CARBON_INTENSITY_GAUGE,
     CARBON_SAVINGS_RATIO,
-    RL_REWARD,
+    COST_SAVINGS_RATIO,
+    DECISIONS_TOTAL,
     ESTIMATED_COST_PER_HR,
-    ACTIVE_DECISIONS,
-    PIPELINE_PRICING_FETCHES,
+    INFERENCE_LATENCY,
+    LAST_DECISION_TIMESTAMP,
     PIPELINE_CARBON_FETCHES,
     PIPELINE_CUR_FETCHES,
     PIPELINE_ERRORS,
-    CARBON_INTENSITY_GAUGE,
+    PIPELINE_PRICING_FETCHES,
     PRICING_ON_DEMAND_GAUGE,
-    BRIDGE_UP,
-    LAST_DECISION_TIMESTAMP,
+    RL_REWARD,
+    WORKLOAD_EVENTS_TOTAL,
 )
 
 logger = logging.getLogger(__name__)
 
 # Kafka topic names — must match producer.py TOPICS dict
 TOPIC_DECISIONS = "cloudos.scheduling.decisions"
-TOPIC_METRICS   = "cloudos.metrics"
-TOPIC_ALERTS    = "cloudos.alerts"
+TOPIC_METRICS = "cloudos.metrics"
+TOPIC_ALERTS = "cloudos.alerts"
 TOPIC_WORKLOADS = "cloudos.workload.events"
 
 ALL_TOPICS = [TOPIC_DECISIONS, TOPIC_METRICS, TOPIC_ALERTS, TOPIC_WORKLOADS]
@@ -114,17 +112,17 @@ class KafkaPrometheusBridge:
     """
 
     def __init__(self, config: BridgeConfig):
-        self._config  = config
+        self._config = config
         self._running = False
 
         # Rolling window for decisions-per-minute gauge
         self._decision_timestamps: Deque[float] = deque()
         self._decision_lock = threading.Lock()
 
-        # Prometheus HTTP server thread reference
-        self._prom_thread:     Optional[threading.Thread] = None
+        # Thread references
         self._consumer_thread: Optional[threading.Thread] = None
         self._pipeline_thread: Optional[threading.Thread] = None
+        self._gauge_thread: Optional[threading.Thread] = None
 
     # -----------------------------------------------------------------------
     # Lifecycle
@@ -138,13 +136,11 @@ class KafkaPrometheusBridge:
         self._running = True
         BRIDGE_UP.set(1)
         logger.info(
-            "KafkaPrometheusBridge starting — "
-            "Prometheus at http://%s:%d/metrics",
+            "KafkaPrometheusBridge starting — Prometheus at http://%s:%d/metrics",
             self._config.prometheus_host,
             self._config.prometheus_port,
         )
 
-        # Thread 1: Kafka consumer
         self._consumer_thread = threading.Thread(
             target=self._consumer_loop,
             daemon=True,
@@ -152,7 +148,6 @@ class KafkaPrometheusBridge:
         )
         self._consumer_thread.start()
 
-        # Thread 2: Pipeline file metrics pusher
         self._pipeline_thread = threading.Thread(
             target=self._pipeline_metrics_loop,
             daemon=True,
@@ -160,13 +155,12 @@ class KafkaPrometheusBridge:
         )
         self._pipeline_thread.start()
 
-        # Thread 3: Active decisions gauge updater
-        gauge_thread = threading.Thread(
+        self._gauge_thread = threading.Thread(
             target=self._active_decisions_loop,
             daemon=True,
             name="gauge-updater",
         )
-        gauge_thread.start()
+        self._gauge_thread.start()
 
         logger.info("KafkaPrometheusBridge: all threads started.")
 
@@ -196,7 +190,6 @@ class KafkaPrometheusBridge:
             self._config.prometheus_port,
         )
 
-        # Keep main thread alive while background threads run
         while self._running:
             time.sleep(1.0)
 
@@ -211,7 +204,9 @@ class KafkaPrometheusBridge:
         """
         consumer = self._create_consumer()
         if consumer is None:
-            logger.error("KafkaPrometheusBridge: consumer creation failed. Thread exiting.")
+            logger.error(
+                "KafkaPrometheusBridge: consumer creation failed. Thread exiting."
+            )
             return
 
         try:
@@ -248,14 +243,14 @@ class KafkaPrometheusBridge:
     def _create_consumer(self) -> Optional[Consumer]:
         """Creates and returns the Kafka consumer. Returns None on failure."""
         conf = {
-            "bootstrap.servers":     self._config.kafka_bootstrap,
-            "group.id":              self._config.kafka_group_id + "-bridge",
-            "auto.offset.reset":     "latest",
-            "enable.auto.commit":    False,
-            "session.timeout.ms":    30000,
-            "max.poll.interval.ms":  300000,
-            "fetch.min.bytes":       1,
-            "fetch.wait.max.ms":     500,
+            "bootstrap.servers": self._config.kafka_bootstrap,
+            "group.id": self._config.kafka_group_id + "-bridge",
+            "auto.offset.reset": "latest",
+            "enable.auto.commit": False,
+            "session.timeout.ms": 30000,
+            "max.poll.interval.ms": 300000,
+            "fetch.min.bytes": 1,
+            "fetch.wait.max.ms": 500,
         }
 
         max_retries = 3
@@ -293,7 +288,6 @@ class KafkaPrometheusBridge:
             max_retries,
             self._config.kafka_bootstrap,
         )
-
         return None
 
     # -----------------------------------------------------------------------
@@ -324,24 +318,24 @@ class KafkaPrometheusBridge:
             BRIDGE_PARSE_ERRORS.labels(topic=topic).inc()
             logger.warning("Handler error [%s]: %s | payload=%s", topic, exc, payload)
 
-    def _handle_decision(self, d: Dict):
+    def _handle_decision(self, d: Dict[str, Any]):
         """
         Handles cloudos.scheduling.decisions messages.
-        Schema (produced by backend/api/routes/scheduling.py):
+        Schema (produced by backend/api/routes/scheduling.py / producer.py):
           {
             decision_id, workload_id,
-            cloud, region, instance_type, scaling_level,
+            cloud, region, instance_type,
             purchase_option, sla_tier,
             estimated_cost_per_hr, cost_savings_pct,
-            carbon_savings_pct, latency_ms, explanation
+            carbon_savings_pct, latency_ms,
+            explanation, actual_reward
           }
         """
-        cloud    = d.get("cloud",            "unknown")
-        region   = d.get("region",           "unknown")
-        inst     = d.get("instance_type",    "unknown")
-        purchase = d.get("purchase_option",  "unknown")
+        cloud = d.get("cloud", "unknown")
+        region = d.get("region", "unknown")
+        inst = d.get("instance_type", "unknown")
+        purchase = d.get("purchase_option", "unknown")
 
-        # Counter: total decisions by cloud/region/instance/purchase
         DECISIONS_TOTAL.labels(
             cloud=cloud,
             region=region,
@@ -349,54 +343,50 @@ class KafkaPrometheusBridge:
             purchase_option=purchase,
         ).inc()
 
-        # Histogram: inference latency
-        latency_ms  = float(d.get("latency_ms", 0.0))
+        latency_ms = float(d.get("latency_ms", 0.0))
         latency_sec = latency_ms / 1000.0
         INFERENCE_LATENCY.labels(cloud=cloud).observe(latency_sec)
 
-        # Histogram: cost savings ratio (pct → fraction)
         cost_savings_pct = float(d.get("cost_savings_pct", 0.0))
         COST_SAVINGS_RATIO.labels(
             cloud=cloud,
             purchase_option=purchase,
         ).observe(cost_savings_pct / 100.0)
 
-        # Histogram: carbon savings ratio
         carbon_savings_pct = float(d.get("carbon_savings_pct", 0.0))
         CARBON_SAVINGS_RATIO.labels(
             cloud=cloud,
             region=region,
         ).observe(carbon_savings_pct / 100.0)
 
-        # Histogram: estimated cost per hour
         cost_per_hr = float(d.get("estimated_cost_per_hr", 0.0))
         ESTIMATED_COST_PER_HR.labels(
             cloud=cloud,
             instance_type=inst,
         ).observe(cost_per_hr)
 
-        # RL reward from explanation (if present)
-        explanation = d.get("explanation", {})
-        if isinstance(explanation, dict):
-            shap_vals = explanation.get("shap_values", {})
-            # Use total reward component if available
-            reward = float(d.get("reward", explanation.get("base_value", 0.0)))
-            if reward != 0.0:
-                RL_REWARD.labels(cloud=cloud).observe(reward)
+        reward = d.get("actual_reward")
+        if reward is not None:
+            try:
+                RL_REWARD.labels(cloud=cloud).observe(float(reward))
+            except (TypeError, ValueError):
+                logger.warning("Invalid actual_reward value: %r", reward)
 
-        # Gauge: last decision timestamp
         LAST_DECISION_TIMESTAMP.set(time.time())
 
-        # Rolling window for active decisions gauge
         with self._decision_lock:
             self._decision_timestamps.append(time.time())
 
         logger.debug(
             "Decision: cloud=%s region=%s cost_savings=%.1f%% carbon_savings=%.1f%% latency=%.1fms",
-            cloud, region, cost_savings_pct, carbon_savings_pct, latency_ms,
+            cloud,
+            region,
+            cost_savings_pct,
+            carbon_savings_pct,
+            latency_ms,
         )
 
-    def _handle_metrics(self, d: Dict):
+    def _handle_metrics(self, d: Dict[str, Any]):
         """
         Handles cloudos.metrics messages.
         Schema (produced by kafka/producer.py publish_metrics):
@@ -406,7 +396,6 @@ class KafkaPrometheusBridge:
             ... any additional metric fields
           }
         """
-        # Pipeline health gauges from producer-published metrics
         if "pricing_fetches" in d:
             PIPELINE_PRICING_FETCHES.set(float(d["pricing_fetches"]))
         if "carbon_fetches" in d:
@@ -422,7 +411,7 @@ class KafkaPrometheusBridge:
 
         logger.debug("Metrics message processed.")
 
-    def _handle_alert(self, d: Dict):
+    def _handle_alert(self, d: Dict[str, Any]):
         """
         Handles cloudos.alerts messages.
         Schema (produced by kafka/producer.py publish_alert):
@@ -432,13 +421,13 @@ class KafkaPrometheusBridge:
         ALERTS_TOTAL.labels(kind=kind).inc()
         logger.warning("ALERT received [%s]: %s", kind, d.get("detail", {}))
 
-    def _handle_workload(self, d: Dict):
+    def _handle_workload(self, d: Dict[str, Any]):
         """
         Handles cloudos.workload.events messages.
         Schema: {"workload_id", "workload_type", "event_type", ...}
         """
         workload_type = d.get("workload_type", "unknown")
-        event_type    = d.get("event_type",    "unknown")
+        event_type = d.get("event_type", "unknown")
         WORKLOAD_EVENTS_TOTAL.labels(
             workload_type=workload_type,
             event_type=event_type,
@@ -461,7 +450,6 @@ class KafkaPrometheusBridge:
             except Exception as exc:
                 logger.warning("Pipeline metrics push error: %s", exc)
 
-            # Sleep in 1s increments so we respond to stop() quickly
             for _ in range(self._config.pipeline_push_interval):
                 if not self._running:
                     break
@@ -472,14 +460,16 @@ class KafkaPrometheusBridge:
         carbon_path = Path(self._config.carbon_path)
         if not carbon_path.exists():
             return
+
         try:
             with open(carbon_path, encoding="utf-8") as fh:
                 data = json.load(fh)
+
             for region, entry in data.items():
                 co2 = float(entry.get("gco2_per_kwh", 0.0))
                 if co2 > 0:
                     CARBON_INTENSITY_GAUGE.labels(region=region).set(co2)
-        except (json.JSONDecodeError, OSError) as exc:
+        except (json.JSONDecodeError, OSError, TypeError, ValueError) as exc:
             logger.debug("Carbon gauge push error: %s", exc)
 
     def _push_pricing_gauges(self):
@@ -487,16 +477,18 @@ class KafkaPrometheusBridge:
         pricing_path = Path(self._config.pricing_path)
         if not pricing_path.exists():
             return
+
         try:
             with open(pricing_path, encoding="utf-8") as fh:
                 data = json.load(fh)
+
             for region, entry in data.items():
                 if region.startswith("_"):
                     continue
                 price = entry.get("m5.large") or entry.get("m5.large:on_demand", 0.0)
                 if price and float(price) > 0:
                     PRICING_ON_DEMAND_GAUGE.labels(region=region).set(float(price))
-        except (json.JSONDecodeError, OSError) as exc:
+        except (json.JSONDecodeError, OSError, TypeError, ValueError) as exc:
             logger.debug("Pricing gauge push error: %s", exc)
 
     # -----------------------------------------------------------------------
@@ -512,18 +504,22 @@ class KafkaPrometheusBridge:
         while self._running:
             cutoff = time.time() - self._config.decision_window
             with self._decision_lock:
-                # Remove timestamps older than the window
-                while self._decision_timestamps and self._decision_timestamps[0] < cutoff:
+                while (
+                    self._decision_timestamps
+                    and self._decision_timestamps[0] < cutoff
+                ):
                     self._decision_timestamps.popleft()
                 count = len(self._decision_timestamps)
+
             ACTIVE_DECISIONS.set(count)
             time.sleep(10.0)
+
+
 # ---------------------------------------------------------------------------
-# Entry point:  python -m ai_engine.kafka.kafka_prometheus_bridge
+# Entry point: python -m ai_engine.kafka.kafka_prometheus_bridge
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
     import signal
-    import sys
 
     logging.basicConfig(
         level=logging.INFO,
@@ -533,7 +529,6 @@ if __name__ == "__main__":
 
     logger = logging.getLogger("bridge_main")
 
-    # Parse optional --port argument
     port = 9090
     args = sys.argv[1:]
     for i, arg in enumerate(args):
@@ -553,7 +548,7 @@ if __name__ == "__main__":
         bridge.stop()
         sys.exit(0)
 
-    signal.signal(signal.SIGINT,  _shutdown)
+    signal.signal(signal.SIGINT, _shutdown)
     signal.signal(signal.SIGTERM, _shutdown)
 
     bridge.start()

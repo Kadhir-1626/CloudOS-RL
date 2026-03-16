@@ -30,7 +30,7 @@ RUN pip install --no-cache-dir \
 
 # Layer 2: scientific stack (larger, changes rarely)
 RUN pip install --no-cache-dir \
-        numpy==1.26.4 \
+        "numpy>=2.0.0,<2.2.0" \
         scipy==1.13.0 \
         joblib==1.4.0
 

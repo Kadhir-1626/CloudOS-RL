@@ -18,10 +18,11 @@ Compatible with:
 import json
 import logging
 import time
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 try:
-    from confluent_kafka import Producer, KafkaException
+    from confluent_kafka import KafkaException, Producer
     from confluent_kafka.admin import AdminClient, NewTopic
 except ImportError:
     raise ImportError(
@@ -34,8 +35,8 @@ logger = logging.getLogger(__name__)
 # Topic names — shared with kafka_prometheus_bridge.py
 TOPICS = {
     "decisions": "cloudos.scheduling.decisions",
-    "metrics":   "cloudos.metrics",
-    "alerts":    "cloudos.alerts",
+    "metrics": "cloudos.metrics",
+    "alerts": "cloudos.alerts",
     "workloads": "cloudos.workload.events",
 }
 
@@ -48,19 +49,21 @@ class CloudOSProducer:
 
     def __init__(self, config: Dict):
         servers = config.get("kafka", {}).get("bootstrap_servers", "localhost:9092")
-        parts   = int(config.get("kafka", {}).get("partitions",   3))
-        rep     = int(config.get("kafka", {}).get("replication",  1))
+        parts = int(config.get("kafka", {}).get("partitions", 3))
+        rep = int(config.get("kafka", {}).get("replication", 1))
 
-        self._producer = Producer({
-            "bootstrap.servers": servers,
-            "client.id":         "cloudos-producer",
-            "acks":              "all",
-            "retries":           3,
-            "retry.backoff.ms":  300,
-            "compression.type":  "lz4",
-            "linger.ms":         5,
-            "message.max.bytes": 1_048_576,
-        })
+        self._producer = Producer(
+            {
+                "bootstrap.servers": servers,
+                "client.id": "cloudos-producer",
+                "acks": "all",
+                "retries": 3,
+                "retry.backoff.ms": 300,
+                "compression.type": "lz4",
+                "linger.ms": 5,
+                "message.max.bytes": 1_048_576,
+            }
+        )
 
         self._ensure_topics(servers, parts, rep)
 
@@ -73,10 +76,31 @@ class CloudOSProducer:
         Publishes a scheduling decision to cloudos.scheduling.decisions.
         Expected keys: decision_id, workload_id, cloud, region, instance_type,
                        purchase_option, cost_savings_pct, carbon_savings_pct,
-                       latency_ms, estimated_cost_per_hr, explanation
+                       latency_ms, estimated_cost_per_hr, explanation,
+                       actual_reward (optional)
         """
         key = decision.get("decision_id", str(int(time.time() * 1000)))
-        self._send(TOPICS["decisions"], key, decision)
+
+        payload = {
+            "decision_id": decision.get("decision_id", key),
+            "workload_id": decision.get("workload_id"),
+            "cloud": decision.get("cloud"),
+            "region": decision.get("region"),
+            "instance_type": decision.get("instance_type"),
+            "purchase_option": decision.get("purchase_option"),
+            "sla_tier": decision.get("sla_tier"),
+            "estimated_cost_per_hr": decision.get("estimated_cost_per_hr"),
+            "cost_savings_pct": decision.get("cost_savings_pct"),
+            "carbon_savings_pct": decision.get("carbon_savings_pct"),
+            "latency_ms": decision.get("latency_ms"),
+            "workload_type": decision.get("workload_type"),
+            "explanation": decision.get("explanation", {}),
+            "actual_reward": decision.get("actual_reward", None),
+            "ts": time.time(),
+            "ts_iso": _now_iso(),
+        }
+
+        self._send(TOPICS["decisions"], key, payload)
 
     def publish_metrics(self, metrics: Dict):
         """
@@ -94,24 +118,31 @@ class CloudOSProducer:
         kind: e.g. "cost_anomaly", "sla_breach", "spot_interruption"
         """
         payload = {
-            "kind":   kind,
+            "kind": kind,
             "detail": detail,
-            "ts":     time.time(),
+            "ts": time.time(),
             "ts_iso": _now_iso(),
         }
         self._send(TOPICS["alerts"], kind, payload)
 
-    def publish_workload_event(self, workload_id: str, workload_type: str, event_type: str, detail: Optional[Dict] = None):
+    def publish_workload_event(
+        self,
+        workload_id: str,
+        workload_type: str,
+        event_type: str,
+        detail: Optional[Dict] = None,
+    ):
         """
         Publishes a workload lifecycle event to cloudos.workload.events.
         event_type: e.g. "submitted", "scheduled", "completed", "failed"
         """
         payload = {
-            "workload_id":   workload_id,
+            "workload_id": workload_id,
             "workload_type": workload_type,
-            "event_type":    event_type,
-            "detail":        detail or {},
-            "ts":            time.time(),
+            "event_type": event_type,
+            "detail": detail or {},
+            "ts": time.time(),
+            "ts_iso": _now_iso(),
         }
         self._send(TOPICS["workloads"], workload_id, payload)
 
@@ -119,7 +150,11 @@ class CloudOSProducer:
         """Blocks until all buffered messages are delivered."""
         remaining = self._producer.flush(timeout=timeout)
         if remaining > 0:
-            logger.warning("Kafka flush: %d messages not delivered within %.1fs", remaining, timeout)
+            logger.warning(
+                "Kafka flush: %d messages not delivered within %.1fs",
+                remaining,
+                timeout,
+            )
 
     # -----------------------------------------------------------------------
     # Private
@@ -133,7 +168,7 @@ class CloudOSProducer:
                 value=json.dumps(payload, default=str).encode("utf-8"),
                 on_delivery=self._on_delivery,
             )
-            self._producer.poll(0)   # non-blocking trigger delivery callbacks
+            self._producer.poll(0)  # non-blocking trigger delivery callbacks
         except KafkaException as exc:
             logger.error("Kafka produce [%s] key=%s: %s", topic, key, exc)
         except BufferError:
@@ -145,18 +180,27 @@ class CloudOSProducer:
         if err:
             logger.error("Kafka delivery failed: topic=%s err=%s", msg.topic(), err)
         else:
-            logger.debug("Delivered → %s [partition=%d offset=%d]",
-                         msg.topic(), msg.partition(), msg.offset())
+            logger.debug(
+                "Delivered → %s [partition=%d offset=%d]",
+                msg.topic(),
+                msg.partition(),
+                msg.offset(),
+            )
 
     def _ensure_topics(self, servers: str, partitions: int, replication: int):
         """Creates any missing Kafka topics."""
         try:
-            admin    = AdminClient({"bootstrap.servers": servers})
+            admin = AdminClient({"bootstrap.servers": servers})
             existing = set(admin.list_topics(timeout=10).topics)
 
             to_create: List[NewTopic] = [
-                NewTopic(t, num_partitions=partitions, replication_factor=replication)
-                for t in TOPICS.values() if t not in existing
+                NewTopic(
+                    topic_name,
+                    num_partitions=partitions,
+                    replication_factor=replication,
+                )
+                for topic_name in TOPICS.values()
+                if topic_name not in existing
             ]
 
             if not to_create:
@@ -176,13 +220,10 @@ class CloudOSProducer:
             logger.warning(
                 "Cannot connect to Kafka at %s: %s\n"
                 "Start Kafka before running the bridge.",
-                servers, exc,
+                servers,
+                exc,
             )
 
 
 def _now_iso() -> str:
     return datetime.now(tz=timezone.utc).isoformat()
-
-
-# import at bottom to avoid circular at module level
-from datetime import datetime, timezone
