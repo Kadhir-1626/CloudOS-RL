@@ -206,11 +206,24 @@ async def schedule_workload(
     workload["workload_id"] = workload_id
 
     try:
-        # Keep compatibility with either decide(...) or schedule(...)
+        # Live path: disable SHAP to keep latency low
         if hasattr(agent, "decide"):
-            raw = agent.decide(workload)
+            raw = agent.decide(workload, include_explanation=False)
         else:
-            raw = agent.schedule(workload)
+            raw = agent.schedule(workload, include_explanation=False)
+    except TypeError:
+        # Backward compatibility if method signature differs
+        try:
+            if hasattr(agent, "decide"):
+                raw = agent.decide(workload)
+            else:
+                raw = agent.schedule(workload)
+        except Exception as exc:
+            logger.error("SchedulerAgent inference failed: %s", exc, exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"RL inference error: {str(exc)[:200]}",
+            )
     except Exception as exc:
         logger.error("SchedulerAgent inference failed: %s", exc, exc_info=True)
         raise HTTPException(
@@ -303,10 +316,16 @@ async def schedule_batch(
             workload_id = getattr(wl_req, "workload_id", None) or f"batch-{i}"
             workload["workload_id"] = workload_id
 
-            if hasattr(agent, "decide"):
-                raw = agent.decide(workload)
-            else:
-                raw = agent.schedule(workload)
+            try:
+                if hasattr(agent, "decide"):
+                    raw = agent.decide(workload, include_explanation=False)
+                else:
+                    raw = agent.schedule(workload, include_explanation=False)
+            except TypeError:
+                if hasattr(agent, "decide"):
+                    raw = agent.decide(workload)
+                else:
+                    raw = agent.schedule(workload)
 
             if raw:
                 item_latency_ms = round((time.perf_counter() - item_t0) * 1000, 2)
