@@ -54,3 +54,8 @@ models/metrics/
 models/eval_logs/
 models/*.zip
 models/*.pkl
+
+# Frontend
+cloudos-ui/node_modules/
+cloudos-ui/dist/
+cloudos-ui/.vite/
