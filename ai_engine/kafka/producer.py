@@ -101,7 +101,8 @@ class CloudOSProducer:
 
         Fire-and-forget. Never raises. Returns False if Kafka unavailable.
         """
-        key = decision.get("decision_id", str(int(time.time() * 1000)))
+        raw_key = decision.get("decision_id")
+        key = str(raw_key) if raw_key else str(int(time.time() * 1000))
 
         payload = {
             "decision_id": decision.get("decision_id", key),
@@ -214,7 +215,7 @@ class CloudOSProducer:
                 exc,
             )
 
-    def _send(self, topic: str, key: str, payload: Dict) -> bool:
+    def _send(self, topic: str, key: Optional[str], payload: Dict) -> bool:
         """
         Internal fire-and-forget send.
         Never raises. Returns False if Kafka is unavailable or produce fails.
@@ -228,9 +229,11 @@ class CloudOSProducer:
             return False
 
         try:
+            encoded_key = str(key).encode("utf-8") if key else None
+
             self._producer.produce(
                 topic=topic,
-                key=str(key).encode("utf-8"),
+                key=encoded_key,
                 value=json.dumps(payload, default=str).encode("utf-8"),
                 on_delivery=self._on_delivery,
             )
@@ -265,11 +268,26 @@ class CloudOSProducer:
 
     @staticmethod
     def _on_delivery(err: Any, msg: Any):
+        """
+        Delivery callback for Kafka producer.
+
+        Logs decision_id (from message key) on success for better traceability.
+        """
         if err:
-            logger.warning("Kafka delivery failed: topic=%s err=%s", msg.topic(), err)
+            topic = msg.topic() if msg is not None else "?"
+            logger.warning(
+                "KafkaProducer: delivery FAILED topic=%s err=%s",
+                topic,
+                err,
+            )
         else:
+            try:
+                key = msg.key().decode("utf-8", errors="replace") if msg.key() else "?"
+            except Exception:
+                key = "?"
             logger.debug(
-                "Delivered → %s [partition=%d offset=%d]",
+                "KafkaProducer: delivered decision=%s topic=%s partition=%d offset=%d",
+                key[:8],
                 msg.topic(),
                 msg.partition(),
                 msg.offset(),

@@ -83,6 +83,8 @@ class ExplanationResponse(BaseModel):
 
 
 class SchedulingDecision(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     decision_id: str
     workload_id: str = ""
     cloud: str
@@ -95,9 +97,6 @@ class SchedulingDecision(BaseModel):
     carbon_savings_pct: float = 0.0
     latency_ms: float = 0.0
     explanation: Optional[Dict[str, Any]] = None
-
-    # Silently ignore extra fields like _state / _decoded if they leak through
-    model_config = {"extra": "ignore"}
 
     @field_validator("cost_savings_pct", "carbon_savings_pct", mode="before")
     @classmethod

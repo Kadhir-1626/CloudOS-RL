@@ -156,27 +156,35 @@ def _initialise() -> None:
     # Step 4: Load SHAP in separate background thread
     # -------------------------------------------------------------------
     def _load_shap_async() -> None:
+        global _agent
         try:
             with _lock:
                 current_agent = _agent
 
             if current_agent is None:
-                logger.warning(
-                    "AgentSingleton: SHAP skipped — agent unavailable"
-                )
+                logger.warning("AgentSingleton: SHAP skipped — agent unavailable")
                 return
 
             current_model = getattr(current_agent, "_model", None)
             if current_model is None:
-                logger.warning(
-                    "AgentSingleton: SHAP skipped — agent model unavailable"
-                )
+                logger.warning("AgentSingleton: SHAP skipped — agent model unavailable")
                 return
 
             from ai_engine.explainability.shap_explainer import SHAPExplainer
             from ai_engine.explainability.explanation_formatter import (
                 ExplanationFormatter,
             )
+
+            # Mark attempt BEFORE loading so downstream /explain messaging is accurate
+            try:
+                object.__setattr__(current_agent, "_shap_init_attempted", True)
+            except Exception:
+                try:
+                    current_agent.__dict__["_shap_init_attempted"] = True
+                except Exception:
+                    logger.debug(
+                        "AgentSingleton: unable to set _shap_init_attempted flag directly"
+                    )
 
             explainer = SHAPExplainer.load(
                 model=current_model,
@@ -191,17 +199,17 @@ def _initialise() -> None:
                         _agent._explainer = explainer
                         _agent._formatter = formatter
 
-                logger.info(
-                    "AgentSingleton: SHAP explainer attached (shap_ready=True)"
-                )
+                logger.info("AgentSingleton: SHAP explainer attached (shap_ready=True)")
             else:
                 logger.warning(
-                    "AgentSingleton: SHAP unavailable — inference continues without it"
+                    "AgentSingleton: SHAPExplainer.load returned None — "
+                    "SHAP disabled. Check background dataset and model."
                 )
 
         except Exception as exc:
             logger.warning(
-                "AgentSingleton: SHAP background load failed (%s)",
+                "AgentSingleton: SHAP background load failed (%s) — "
+                "inference continues without explainability.",
                 exc,
             )
 

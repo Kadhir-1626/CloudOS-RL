@@ -1,6 +1,7 @@
 """
 Scheduling API Routes
 ======================
+
 POST /api/v1/schedule       — submit workload, get RL placement decision
 GET  /api/v1/decisions      — list recent decisions
 GET  /api/v1/decisions/{id} — get single decision
@@ -318,26 +319,49 @@ async def explain_decision(
     background_tasks: BackgroundTasks,
     agent=Depends(get_agent),
 ):
-    get_record = getattr(_decision_store, "get_record", None)
-    if not callable(get_record):
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Decision store does not support explanation records.",
-        )
-
-    record = get_record(decision_id)
+    record = _decision_store.get_record(decision_id)
     if record is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Decision {decision_id} not found in store.",
+            detail=(
+                f"Decision '{decision_id}' not found. "
+                f"Decisions persist only for the lifetime of this pod."
+            ),
         )
 
-    explainer = getattr(agent, "_explainer", None) if agent else None
-    if agent is None or explainer is None:
+    if agent is None:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="SHAP explainer not ready. Check /api/v1/status.",
+            detail="RL agent not loaded.",
         )
+
+    explainer = getattr(agent, "_explainer", None)
+    if explainer is None:
+        attempted = getattr(agent, "_shap_init_attempted", False)
+        detail = (
+            "SHAP explainer initialised but failed to load. Check logs for SHAPExplainer errors."
+            if attempted
+            else "SHAP explainer still initialising. Retry in 30 seconds."
+        )
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=detail,
+        )
+
+    existing = getattr(record.decision, "explanation", None)
+    if (
+        isinstance(existing, dict)
+        and not existing.get("error")
+        and (existing.get("summary") or "top_drivers" in existing)
+    ):
+        return {
+            "status": "already_complete",
+            "decision_id": decision_id,
+            "message": (
+                "Explanation already available. "
+                "Fetch via GET /api/v1/decisions/{decision_id}."
+            ),
+        }
 
     background_tasks.add_task(
         _compute_and_attach_explanation,
@@ -350,7 +374,10 @@ async def explain_decision(
     return {
         "status": "accepted",
         "decision_id": decision_id,
-        "message": "SHAP computing in background. Poll GET /api/v1/decisions/{id}.",
+        "message": (
+            "SHAP computing in background. "
+            "Poll GET /api/v1/decisions/{decision_id} in ~10–15s."
+        ),
     }
 
 
@@ -538,13 +565,16 @@ async def agent_status(agent=Depends(get_agent)) -> AgentStatusResponse:
 def _store_and_publish(producer, decision, workload, state, decoded):
     """
     Store first, then attempt Kafka publish.
+    Runs inside FastAPI BackgroundTasks threadpool.
     Never raises.
     """
     try:
+        _decision_store.put(decision, workload, state, decoded)
+    except TypeError:
         try:
-            _decision_store.put(decision, workload, state, decoded)
-        except TypeError:
             _decision_store.put(decision)
+        except Exception as exc:
+            logger.warning("DecisionStore.put failed (non-fatal): %s", exc)
     except Exception as exc:
         logger.warning("DecisionStore.put failed (non-fatal): %s", exc)
 
@@ -579,12 +609,15 @@ def _store_and_publish(producer, decision, workload, state, decoded):
 
 def _compute_and_attach_explanation(agent, decision_id, state, decoded):
     """
-    Run SHAP on stored state and attach explanation if supported.
+    Runs in BackgroundTasks thread pool.
+    Guarantees: explanation is attached if store update succeeds.
     Never raises.
     """
-    try:
-        logger.info("SHAP: computing for %s ...", decision_id[:8])
+    t0 = time.perf_counter()
+    logger.info("SHAP: starting computation for decision %s", decision_id[:8])
 
+    explanation = None
+    try:
         if hasattr(agent, "compute_explanation"):
             explanation = agent.compute_explanation(state, decoded)
         elif hasattr(agent, "_build_explanation"):
@@ -596,19 +629,63 @@ def _compute_and_attach_explanation(agent, decision_id, state, decoded):
                 workload=decoded,
                 workload_dict=decoded if isinstance(decoded, dict) else {},
             )
-        else:
-            explanation = None
-
-        if not explanation:
-            logger.warning("SHAP: returned empty explanation for %s", decision_id[:8])
-            return
-
-        attach = getattr(_decision_store, "attach_explanation", None)
-        if callable(attach):
-            attached = attach(decision_id, explanation)
-            logger.info("SHAP: complete for %s attached=%s", decision_id[:8], attached)
-        else:
-            logger.warning("Decision store does not support attach_explanation for %s", decision_id[:8])
-
     except Exception as exc:
-        logger.warning("SHAP async compute failed for %s: %s", decision_id[:8], exc)
+        logger.error(
+            "SHAP: compute_explanation raised for %s: %s",
+            decision_id[:8],
+            exc,
+            exc_info=True,
+        )
+
+    elapsed_ms = (time.perf_counter() - t0) * 1000.0
+
+    has_summary = bool(
+        explanation
+        and isinstance(explanation, dict)
+        and explanation.get("summary")
+    )
+    has_drivers_key = bool(
+        explanation
+        and isinstance(explanation, dict)
+        and "top_drivers" in explanation
+    )
+
+    if not has_summary or not has_drivers_key:
+        logger.warning(
+            "SHAP: output incomplete for %s "
+            "(has_summary=%s has_drivers=%s elapsed=%.0fms) — using fallback",
+            decision_id[:8],
+            has_summary,
+            has_drivers_key,
+            elapsed_ms,
+        )
+        explanation = {
+            "summary": (
+                "SHAP analysis completed but produced no clear attribution signal. "
+                "This is normal for early-stage or undertrained RL models."
+            ),
+            "top_drivers": [],
+            "top_positive": [],
+            "top_negative": [],
+            "base_value": 0.0,
+            "confidence": 0.0,
+            "explanation_ms": round(elapsed_ms, 1),
+            "error": False,
+        }
+
+    attached = _decision_store.attach_explanation(decision_id, explanation)
+
+    logger.info(
+        "SHAP: complete for %s — attached=%s confidence=%.3f elapsed=%.0fms",
+        decision_id[:8],
+        attached,
+        float(explanation.get("confidence", 0.0) or 0.0),
+        elapsed_ms,
+    )
+
+    if not attached:
+        logger.error(
+            "SHAP: CRITICAL — attach_explanation failed for %s. "
+            "Decision will show no explanation in UI.",
+            decision_id[:8],
+        )

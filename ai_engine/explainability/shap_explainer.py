@@ -288,18 +288,26 @@ class SHAPExplainer:
             for name, v in zip(self._feature_names, vals)
         }
 
-        sorted_vals = sorted(named.items(), key=lambda kv: kv[1], reverse=True)
+        # Use an absolute threshold instead of strict > 0 / < 0.
+        # This avoids clutter from tiny numerical noise while still preserving
+        # meaningful small signals.
+        all_abs = [abs(v) for v in vals]
+        total_abs = sum(all_abs)
+        threshold = total_abs * 0.01 if total_abs > 1e-9 else 1e-9
+
+        sorted_desc = sorted(named.items(), key=lambda kv: kv[1], reverse=True)
+        sorted_asc = sorted(named.items(), key=lambda kv: kv[1])
+
         top_positive = [
             {"feature": k, "shap_value": round(v, 6)}
-            for k, v in sorted_vals[:5]
-            if v > 0
+            for k, v in sorted_desc[:5]
+            if v > threshold
         ]
 
-        sorted_neg = sorted(named.items(), key=lambda kv: kv[1])
         top_negative = [
             {"feature": k, "shap_value": round(v, 6)}
-            for k, v in sorted_neg[:5]
-            if v < 0
+            for k, v in sorted_asc[:5]
+            if v < -threshold
         ]
 
         top_drivers = sorted(
@@ -307,7 +315,7 @@ class SHAPExplainer:
                 {
                     "feature": k,
                     "shap_value": round(v, 6),
-                    "direction": "positive" if v > 0 else "negative",
+                    "direction": "positive" if v >= 0 else "negative",
                 }
                 for k, v in named.items()
             ],

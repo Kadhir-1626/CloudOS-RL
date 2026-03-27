@@ -33,6 +33,7 @@ import logging
 import os
 import pickle
 import sys
+import threading
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -431,7 +432,7 @@ class SchedulerAgent:
             return round(od * (1.0 - self._SPOT_DISCOUNT), 6)
         if purchase == "reserved_1yr":
             return round(od * self._RESERVED_1YR, 6)
-        if purchase == "reserved_3yr":
+        if purchase == "reserved_3YR":
             return round(od * self._RESERVED_3YR, 6)
 
         return round(od, 6)
@@ -525,6 +526,79 @@ class SchedulerAgent:
         include_explanation: bool = True,
     ) -> Dict[str, Any]:
         return self.schedule(workload=workload, include_explanation=include_explanation)
+
+    def compute_explanation(self, state: np.ndarray, decoded: Dict) -> Dict:
+        """
+        Compute SHAP explanation in a guarded background-safe way.
+
+        - Logs real failure reasons instead of silently returning {}
+        - Adds a hard 120s timeout guard so SHAP cannot hang forever
+        - Returns formatted explanation dict, or {} on failure
+        """
+        if self._explainer is None:
+            logger.warning("compute_explanation: _explainer is None — SHAP not loaded")
+            return {}
+
+        if self._formatter is None:
+            logger.warning("compute_explanation: _formatter is None — formatter not loaded")
+            return {}
+
+        try:
+            state = np.asarray(state, dtype=np.float32)
+            if state.ndim > 1:
+                state = state.reshape(-1)
+        except Exception as exc:
+            logger.error("compute_explanation: invalid state input: %s", exc, exc_info=True)
+            return {}
+
+        decoded_dict = self._normalise_decoded_payload(decoded)
+
+        result_holder: Dict[str, Dict] = {}
+        exception_holder: List[Exception] = []
+
+        def _run() -> None:
+            try:
+                raw = self._explainer.explain(state)
+                if not raw or raw.get("error"):
+                    logger.warning(
+                        "compute_explanation: explain() returned error or empty: %s",
+                        raw.get("error", "empty dict") if raw else "None",
+                    )
+                    result_holder["result"] = {}
+                    return
+
+                formatted = self._formatter.format(raw, decoded_dict)
+                result_holder["result"] = formatted
+
+                logger.debug(
+                    "compute_explanation: success — confidence=%.3f drivers=%d ms=%.0f",
+                    float(formatted.get("confidence", 0.0) or 0.0),
+                    len(formatted.get("top_drivers", [])),
+                    float(formatted.get("explanation_ms", 0.0) or 0.0),
+                )
+            except Exception as exc:
+                exception_holder.append(exc)
+                logger.error(
+                    "compute_explanation: exception during SHAP: %s",
+                    exc,
+                    exc_info=True,
+                )
+
+        worker = threading.Thread(target=_run, daemon=True)
+        worker.start()
+        worker.join(timeout=120.0)
+
+        if worker.is_alive():
+            logger.error(
+                "compute_explanation: SHAP timed out after 120s for state shape %s",
+                state.shape,
+            )
+            return {}
+
+        if exception_holder:
+            return {}
+
+        return result_holder.get("result", {})
 
     # -------------------------------------------------------------------------
     # Internal helpers
