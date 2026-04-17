@@ -417,8 +417,8 @@ class SHAPExplainer:
             logger.error("SHAPExplainer: initialisation failed: %s", exc)
             self._explainer = None
 
-    @staticmethod
     def _empty_explanation(
+        self,
         error: str = "explainer_not_ready",
         explanation_ms: float = 0.0,
         state_mean: float = 0.0,
@@ -427,7 +427,9 @@ class SHAPExplainer:
         return {
             "top_drivers": [],
             "base_value": 0.0,
-            "shap_values": {},
+            "shap_values": {
+                feature: 0.0 for feature in self._feature_names
+            },
             "top_positive": [],
             "top_negative": [],
             "explanation_ms": round(float(explanation_ms), 2),
