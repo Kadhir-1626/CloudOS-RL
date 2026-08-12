@@ -4,12 +4,12 @@ app:
   debug: false
 
 model:
-  path: /app/models/best_model.zip
-  vecnorm: /app/models/vec_normalize.pkl
+  path: models/best/best_model.zip
+  vecnorm: models/vec_normalize.pkl
 
 api:
   host: 0.0.0.0
-  port: 8000
+  port: 8001
   cors_origins:
     - "http://localhost:3000"
     - "http://localhost:3001"
@@ -24,7 +24,7 @@ training:
   gamma: 0.99
   gae_lambda: 0.95
   clip_range: 0.2
-  ent_coef: 0.01
+  ent_coef: 0.05
   vf_coef: 0.5
   max_grad_norm: 0.5
   model_save_dir: models
@@ -38,11 +38,11 @@ environment:
   pricing_fallback_path: data/pricing/aws_pricing.json
 
 reward_weights:
-  alpha: 0.35
-  beta: 0.25
-  gamma: 0.20
-  delta: 0.15
-  epsilon: 0.05
+  alpha: 0.30
+  beta: 0.28
+  gamma: 0.22
+  delta: 0.20
+  epsilon: 0.00
 
 # =============================================================================
 # Data Pipeline (Module G)

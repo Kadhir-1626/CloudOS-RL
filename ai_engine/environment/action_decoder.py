@@ -60,7 +60,7 @@ class ActionDecoder:
             "scaling_level":    scaling_level,
             "purchase_option":  purchase_opt,
             "sla_tier":         sla_tier,
-            "requires_migration": cloud != "aws",
+            "requires_migration": False,
         }
 
     def _map_region(self, cloud: str, generic_region: str) -> str:

@@ -55,10 +55,13 @@ class TestRewardFunction(unittest.TestCase):
         self.assertGreater(float(r_ok), float(r_fail))
 
     def test_migration_penalty(self):
-        """Migration adds a negative component."""
+        """Migration penalty is zero by design (epsilon=0.00).
+        All clouds compete purely on cost, latency, carbon, and SLA.
+        Rewards must be equal when only migration flag differs."""
         r_no_mig = self.reward_fn.compute(self._make_state({"migration_occurred": False}))
         r_mig    = self.reward_fn.compute(self._make_state({"migration_occurred": True}))
-        self.assertGreater(float(r_no_mig), float(r_mig))
+        self.assertAlmostEqual(float(r_no_mig), float(r_mig), places=5,
+                               msg="Migration penalty should be zero (epsilon=0.00)")
 
     def test_expensive_cloud_reduces_reward(self):
         """Higher cost than baseline must reduce reward."""

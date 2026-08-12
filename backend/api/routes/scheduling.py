@@ -57,7 +57,7 @@ SLA_TIER_MAP = {
 # Limit concurrent blocking inference before entering the thread pool.
 # This should track the safer CPU-aware pool sizing strategy.
 _CPU_COUNT = os.cpu_count() or 4
-_MAX_CONCURRENT_INFERENCE = min(32, max(4, _CPU_COUNT * 2))
+_MAX_CONCURRENT_INFERENCE = min(32, max(8, _CPU_COUNT * 3))
 _infer_semaphore = asyncio.Semaphore(_MAX_CONCURRENT_INFERENCE)
 
 logger.info(

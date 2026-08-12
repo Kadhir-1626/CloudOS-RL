@@ -24,15 +24,25 @@ class WorkloadRequest(BaseModel):
     """
     workload_id: Optional[str] = Field(default=None)
     workload_type: str = Field(
-        default="batch",
+        ...,
         pattern="^(training|inference|batch|streaming)$",
+        description="Workload type: training, inference, batch, or streaming",
     )
-    cpu_request_vcpu: float = Field(default=2.0, ge=0.25, le=512.0)
-    memory_request_gb: float = Field(default=4.0, ge=0.5, le=2048.0)
+    cpu_request_vcpu: float = Field(
+        ..., ge=0.25, le=512.0,
+        description="vCPU cores requested (0.25–512)",
+    )
+    memory_request_gb: float = Field(
+        ..., ge=0.5, le=2048.0,
+        description="Memory in GB (0.5–2048)",
+    )
     gpu_count: int = Field(default=0, ge=0, le=16)
     storage_gb: float = Field(default=50.0, ge=1.0)
     network_bandwidth_gbps: float = Field(default=1.0, ge=0.1)
-    expected_duration_hours: float = Field(default=1.0, ge=0.1)
+    expected_duration_hours: float = Field(
+        ..., ge=0.1,
+        description="Expected job duration in hours",
+    )
     priority: int = Field(default=2, ge=1, le=4)
     sla_latency_ms: int = Field(default=200, ge=10)
     sla_tier: str = Field(default="standard")

@@ -741,4 +741,89 @@
     "_region": "eu-north-1",
     "_updated": "2026-03-11T05:41:19.963668+00:00"
   }
+  ,
+  "eastus": {
+    "Standard_D4s_v3": 0.192, "Standard_D4s_v3:on_demand": 0.192, "Standard_D4s_v3:spot": 0.058, "Standard_D4s_v3:reserved_1yr": 0.118, "Standard_D4s_v3:reserved_3yr": 0.082, "Standard_D4s_v3:savings_plan": 0.105,
+    "Standard_D2s_v3": 0.096, "Standard_D2s_v3:on_demand": 0.096, "Standard_D2s_v3:spot": 0.029, "Standard_D2s_v3:reserved_1yr": 0.059, "Standard_D2s_v3:reserved_3yr": 0.041, "Standard_D2s_v3:savings_plan": 0.052,
+    "Standard_D8s_v3": 0.384, "Standard_D8s_v3:on_demand": 0.384, "Standard_D8s_v3:spot": 0.115, "Standard_D8s_v3:reserved_1yr": 0.236, "Standard_D8s_v3:reserved_3yr": 0.164, "Standard_D8s_v3:savings_plan": 0.211,
+    "Standard_F4s_v2": 0.169, "Standard_F4s_v2:on_demand": 0.169, "Standard_F4s_v2:spot": 0.051, "Standard_F4s_v2:reserved_1yr": 0.104, "Standard_F4s_v2:reserved_3yr": 0.072, "Standard_F4s_v2:savings_plan": 0.093,
+    "Standard_F8s_v2": 0.338, "Standard_F8s_v2:on_demand": 0.338, "Standard_F8s_v2:spot": 0.101, "Standard_F8s_v2:reserved_1yr": 0.208, "Standard_F8s_v2:reserved_3yr": 0.144, "Standard_F8s_v2:savings_plan": 0.186,
+    "Standard_E4s_v3": 0.252, "Standard_E4s_v3:on_demand": 0.252, "Standard_E4s_v3:spot": 0.076, "Standard_E4s_v3:reserved_1yr": 0.155, "Standard_E4s_v3:reserved_3yr": 0.108, "Standard_E4s_v3:savings_plan": 0.139,
+    "Standard_NC6s_v3": 1.14, "Standard_NC6s_v3:on_demand": 1.14, "Standard_NC6s_v3:spot": 0.228, "Standard_NC6s_v3:reserved_1yr": 0.684, "Standard_NC6s_v3:reserved_3yr": 0.456, "Standard_NC6s_v3:savings_plan": 0.627
+  },
+  "westeurope": {
+    "Standard_D4s_v3": 0.211, "Standard_D4s_v3:on_demand": 0.211, "Standard_D4s_v3:spot": 0.063, "Standard_D4s_v3:reserved_1yr": 0.130, "Standard_D4s_v3:reserved_3yr": 0.090, "Standard_D4s_v3:savings_plan": 0.116,
+    "Standard_D2s_v3": 0.106, "Standard_D2s_v3:on_demand": 0.106, "Standard_D2s_v3:spot": 0.032, "Standard_D2s_v3:reserved_1yr": 0.065, "Standard_D2s_v3:reserved_3yr": 0.045, "Standard_D2s_v3:savings_plan": 0.058,
+    "Standard_D8s_v3": 0.422, "Standard_D8s_v3:on_demand": 0.422, "Standard_D8s_v3:spot": 0.127, "Standard_D8s_v3:reserved_1yr": 0.260, "Standard_D8s_v3:reserved_3yr": 0.180, "Standard_D8s_v3:savings_plan": 0.232,
+    "Standard_F4s_v2": 0.186, "Standard_F4s_v2:on_demand": 0.186, "Standard_F4s_v2:spot": 0.056, "Standard_F4s_v2:reserved_1yr": 0.114, "Standard_F4s_v2:reserved_3yr": 0.080, "Standard_F4s_v2:savings_plan": 0.102,
+    "Standard_F8s_v2": 0.372, "Standard_F8s_v2:on_demand": 0.372, "Standard_F8s_v2:spot": 0.112, "Standard_F8s_v2:reserved_1yr": 0.229, "Standard_F8s_v2:reserved_3yr": 0.159, "Standard_F8s_v2:savings_plan": 0.205,
+    "Standard_E4s_v3": 0.277, "Standard_E4s_v3:on_demand": 0.277, "Standard_E4s_v3:spot": 0.083, "Standard_E4s_v3:reserved_1yr": 0.170, "Standard_E4s_v3:reserved_3yr": 0.118, "Standard_E4s_v3:savings_plan": 0.152,
+    "Standard_NC6s_v3": 1.254, "Standard_NC6s_v3:on_demand": 1.254, "Standard_NC6s_v3:spot": 0.251, "Standard_NC6s_v3:reserved_1yr": 0.752, "Standard_NC6s_v3:reserved_3yr": 0.502, "Standard_NC6s_v3:savings_plan": 0.690
+  },
+  "eastus2": {
+    "Standard_D4s_v3": 0.192, "Standard_D4s_v3:on_demand": 0.192, "Standard_D4s_v3:spot": 0.057, "Standard_D4s_v3:reserved_1yr": 0.118, "Standard_D4s_v3:reserved_3yr": 0.082, "Standard_D4s_v3:savings_plan": 0.105,
+    "Standard_D2s_v3": 0.096, "Standard_D2s_v3:on_demand": 0.096, "Standard_D2s_v3:spot": 0.029, "Standard_D2s_v3:reserved_1yr": 0.059, "Standard_D2s_v3:reserved_3yr": 0.041, "Standard_D2s_v3:savings_plan": 0.052,
+    "Standard_D8s_v3": 0.384, "Standard_D8s_v3:on_demand": 0.384, "Standard_D8s_v3:spot": 0.115, "Standard_D8s_v3:reserved_1yr": 0.236, "Standard_D8s_v3:reserved_3yr": 0.164, "Standard_D8s_v3:savings_plan": 0.211,
+    "Standard_F4s_v2": 0.169, "Standard_F4s_v2:on_demand": 0.169, "Standard_F4s_v2:spot": 0.051, "Standard_F4s_v2:reserved_1yr": 0.104, "Standard_F4s_v2:reserved_3yr": 0.072, "Standard_F4s_v2:savings_plan": 0.093,
+    "Standard_E4s_v3": 0.252, "Standard_E4s_v3:on_demand": 0.252, "Standard_E4s_v3:spot": 0.076, "Standard_E4s_v3:reserved_1yr": 0.155, "Standard_E4s_v3:reserved_3yr": 0.108, "Standard_E4s_v3:savings_plan": 0.139,
+    "Standard_NC6s_v3": 1.14, "Standard_NC6s_v3:on_demand": 1.14, "Standard_NC6s_v3:spot": 0.228, "Standard_NC6s_v3:reserved_1yr": 0.684, "Standard_NC6s_v3:reserved_3yr": 0.456, "Standard_NC6s_v3:savings_plan": 0.627
+  },
+  "westus2": {
+    "Standard_D4s_v3": 0.184, "Standard_D4s_v3:on_demand": 0.184, "Standard_D4s_v3:spot": 0.055, "Standard_D4s_v3:reserved_1yr": 0.113, "Standard_D4s_v3:reserved_3yr": 0.079, "Standard_D4s_v3:savings_plan": 0.101,
+    "Standard_D2s_v3": 0.092, "Standard_D2s_v3:on_demand": 0.092, "Standard_D2s_v3:spot": 0.028, "Standard_D2s_v3:reserved_1yr": 0.057, "Standard_D2s_v3:reserved_3yr": 0.039, "Standard_D2s_v3:savings_plan": 0.051,
+    "Standard_D8s_v3": 0.368, "Standard_D8s_v3:on_demand": 0.368, "Standard_D8s_v3:spot": 0.110, "Standard_D8s_v3:reserved_1yr": 0.226, "Standard_D8s_v3:reserved_3yr": 0.157, "Standard_D8s_v3:savings_plan": 0.202,
+    "Standard_F4s_v2": 0.161, "Standard_F4s_v2:on_demand": 0.161, "Standard_F4s_v2:spot": 0.048, "Standard_F4s_v2:reserved_1yr": 0.099, "Standard_F4s_v2:reserved_3yr": 0.069, "Standard_F4s_v2:savings_plan": 0.089,
+    "Standard_E4s_v3": 0.241, "Standard_E4s_v3:on_demand": 0.241, "Standard_E4s_v3:spot": 0.072, "Standard_E4s_v3:reserved_1yr": 0.148, "Standard_E4s_v3:reserved_3yr": 0.103, "Standard_E4s_v3:savings_plan": 0.133,
+    "Standard_NC6s_v3": 1.09, "Standard_NC6s_v3:on_demand": 1.09, "Standard_NC6s_v3:spot": 0.218, "Standard_NC6s_v3:reserved_1yr": 0.654, "Standard_NC6s_v3:reserved_3yr": 0.436, "Standard_NC6s_v3:savings_plan": 0.600
+  },
+  "northeurope": {
+    "Standard_D4s_v3": 0.202, "Standard_D4s_v3:on_demand": 0.202, "Standard_D4s_v3:spot": 0.061, "Standard_D4s_v3:reserved_1yr": 0.124, "Standard_D4s_v3:reserved_3yr": 0.086, "Standard_D4s_v3:savings_plan": 0.111,
+    "Standard_D2s_v3": 0.101, "Standard_D2s_v3:on_demand": 0.101, "Standard_D2s_v3:spot": 0.030, "Standard_D2s_v3:reserved_1yr": 0.062, "Standard_D2s_v3:reserved_3yr": 0.043, "Standard_D2s_v3:savings_plan": 0.056,
+    "Standard_D8s_v3": 0.404, "Standard_D8s_v3:on_demand": 0.404, "Standard_D8s_v3:spot": 0.121, "Standard_D8s_v3:reserved_1yr": 0.248, "Standard_D8s_v3:reserved_3yr": 0.173, "Standard_D8s_v3:savings_plan": 0.222,
+    "Standard_F4s_v2": 0.178, "Standard_F4s_v2:on_demand": 0.178, "Standard_F4s_v2:spot": 0.053, "Standard_F4s_v2:reserved_1yr": 0.109, "Standard_F4s_v2:reserved_3yr": 0.076, "Standard_F4s_v2:savings_plan": 0.098,
+    "Standard_E4s_v3": 0.265, "Standard_E4s_v3:on_demand": 0.265, "Standard_E4s_v3:spot": 0.080, "Standard_E4s_v3:reserved_1yr": 0.163, "Standard_E4s_v3:reserved_3yr": 0.113, "Standard_E4s_v3:savings_plan": 0.146,
+    "Standard_NC6s_v3": 1.197, "Standard_NC6s_v3:on_demand": 1.197, "Standard_NC6s_v3:spot": 0.239, "Standard_NC6s_v3:reserved_1yr": 0.718, "Standard_NC6s_v3:reserved_3yr": 0.479, "Standard_NC6s_v3:savings_plan": 0.658
+  },
+  "us-central1": {
+    "n2-standard-4": 0.194, "n2-standard-4:on_demand": 0.194, "n2-standard-4:spot": 0.058, "n2-standard-4:reserved_1yr": 0.134, "n2-standard-4:reserved_3yr": 0.093, "n2-standard-4:savings_plan": 0.107,
+    "n2-standard-2": 0.097, "n2-standard-2:on_demand": 0.097, "n2-standard-2:spot": 0.029, "n2-standard-2:reserved_1yr": 0.067, "n2-standard-2:reserved_3yr": 0.047, "n2-standard-2:savings_plan": 0.053,
+    "n2-standard-8": 0.388, "n2-standard-8:on_demand": 0.388, "n2-standard-8:spot": 0.116, "n2-standard-8:reserved_1yr": 0.268, "n2-standard-8:reserved_3yr": 0.186, "n2-standard-8:savings_plan": 0.213,
+    "c2-standard-4": 0.209, "c2-standard-4:on_demand": 0.209, "c2-standard-4:spot": 0.063, "c2-standard-4:reserved_1yr": 0.144, "c2-standard-4:reserved_3yr": 0.100, "c2-standard-4:savings_plan": 0.115,
+    "c2-standard-8": 0.418, "c2-standard-8:on_demand": 0.418, "c2-standard-8:spot": 0.125, "c2-standard-8:reserved_1yr": 0.289, "c2-standard-8:reserved_3yr": 0.201, "c2-standard-8:savings_plan": 0.230,
+    "n2-highmem-4": 0.261, "n2-highmem-4:on_demand": 0.261, "n2-highmem-4:spot": 0.078, "n2-highmem-4:reserved_1yr": 0.180, "n2-highmem-4:reserved_3yr": 0.125, "n2-highmem-4:savings_plan": 0.144,
+    "a2-highgpu-1g": 3.673, "a2-highgpu-1g:on_demand": 3.673, "a2-highgpu-1g:spot": 0.735, "a2-highgpu-1g:reserved_1yr": 2.540, "a2-highgpu-1g:reserved_3yr": 1.763, "a2-highgpu-1g:savings_plan": 2.020
+  },
+  "us-east1": {
+    "n2-standard-4": 0.190, "n2-standard-4:on_demand": 0.190, "n2-standard-4:spot": 0.057, "n2-standard-4:reserved_1yr": 0.131, "n2-standard-4:reserved_3yr": 0.091, "n2-standard-4:savings_plan": 0.105,
+    "n2-standard-2": 0.095, "n2-standard-2:on_demand": 0.095, "n2-standard-2:spot": 0.029, "n2-standard-2:reserved_1yr": 0.066, "n2-standard-2:reserved_3yr": 0.046, "n2-standard-2:savings_plan": 0.052,
+    "n2-standard-8": 0.380, "n2-standard-8:on_demand": 0.380, "n2-standard-8:spot": 0.114, "n2-standard-8:reserved_1yr": 0.262, "n2-standard-8:reserved_3yr": 0.182, "n2-standard-8:savings_plan": 0.209,
+    "c2-standard-4": 0.204, "c2-standard-4:on_demand": 0.204, "c2-standard-4:spot": 0.061, "c2-standard-4:reserved_1yr": 0.141, "c2-standard-4:reserved_3yr": 0.098, "c2-standard-4:savings_plan": 0.112,
+    "c2-standard-8": 0.409, "c2-standard-8:on_demand": 0.409, "c2-standard-8:spot": 0.123, "c2-standard-8:reserved_1yr": 0.283, "c2-standard-8:reserved_3yr": 0.196, "c2-standard-8:savings_plan": 0.225,
+    "n2-highmem-4": 0.255, "n2-highmem-4:on_demand": 0.255, "n2-highmem-4:spot": 0.077, "n2-highmem-4:reserved_1yr": 0.176, "n2-highmem-4:reserved_3yr": 0.122, "n2-highmem-4:savings_plan": 0.140,
+    "a2-highgpu-1g": 3.590, "a2-highgpu-1g:on_demand": 3.590, "a2-highgpu-1g:spot": 0.718, "a2-highgpu-1g:reserved_1yr": 2.483, "a2-highgpu-1g:reserved_3yr": 1.723, "a2-highgpu-1g:savings_plan": 1.975
+  },
+  "europe-west1": {
+    "n2-standard-4": 0.213, "n2-standard-4:on_demand": 0.213, "n2-standard-4:spot": 0.064, "n2-standard-4:reserved_1yr": 0.147, "n2-standard-4:reserved_3yr": 0.102, "n2-standard-4:savings_plan": 0.117,
+    "n2-standard-2": 0.107, "n2-standard-2:on_demand": 0.107, "n2-standard-2:spot": 0.032, "n2-standard-2:reserved_1yr": 0.074, "n2-standard-2:reserved_3yr": 0.051, "n2-standard-2:savings_plan": 0.059,
+    "n2-standard-8": 0.426, "n2-standard-8:on_demand": 0.426, "n2-standard-8:spot": 0.128, "n2-standard-8:reserved_1yr": 0.294, "n2-standard-8:reserved_3yr": 0.204, "n2-standard-8:savings_plan": 0.234,
+    "c2-standard-4": 0.229, "c2-standard-4:on_demand": 0.229, "c2-standard-4:spot": 0.069, "c2-standard-4:reserved_1yr": 0.158, "c2-standard-4:reserved_3yr": 0.110, "c2-standard-4:savings_plan": 0.126,
+    "n2-highmem-4": 0.287, "n2-highmem-4:on_demand": 0.287, "n2-highmem-4:spot": 0.086, "n2-highmem-4:reserved_1yr": 0.198, "n2-highmem-4:reserved_3yr": 0.138, "n2-highmem-4:savings_plan": 0.158,
+    "a2-highgpu-1g": 4.040, "a2-highgpu-1g:on_demand": 4.040, "a2-highgpu-1g:spot": 0.808, "a2-highgpu-1g:reserved_1yr": 2.796, "a2-highgpu-1g:reserved_3yr": 1.940, "a2-highgpu-1g:savings_plan": 2.222
+  },
+  "europe-west4": {
+    "n2-standard-4": 0.209, "n2-standard-4:on_demand": 0.209, "n2-standard-4:spot": 0.063, "n2-standard-4:reserved_1yr": 0.144, "n2-standard-4:reserved_3yr": 0.100, "n2-standard-4:savings_plan": 0.115,
+    "n2-standard-2": 0.105, "n2-standard-2:on_demand": 0.105, "n2-standard-2:spot": 0.032, "n2-standard-2:reserved_1yr": 0.072, "n2-standard-2:reserved_3yr": 0.050, "n2-standard-2:savings_plan": 0.058,
+    "n2-standard-8": 0.418, "n2-standard-8:on_demand": 0.418, "n2-standard-8:spot": 0.125, "n2-standard-8:reserved_1yr": 0.289, "n2-standard-8:reserved_3yr": 0.201, "n2-standard-8:savings_plan": 0.230,
+    "c2-standard-4": 0.225, "c2-standard-4:on_demand": 0.225, "c2-standard-4:spot": 0.068, "c2-standard-4:reserved_1yr": 0.155, "c2-standard-4:reserved_3yr": 0.108, "c2-standard-4:savings_plan": 0.124,
+    "n2-highmem-4": 0.281, "n2-highmem-4:on_demand": 0.281, "n2-highmem-4:spot": 0.084, "n2-highmem-4:reserved_1yr": 0.194, "n2-highmem-4:reserved_3yr": 0.135, "n2-highmem-4:savings_plan": 0.155,
+    "a2-highgpu-1g": 3.962, "a2-highgpu-1g:on_demand": 3.962, "a2-highgpu-1g:spot": 0.792, "a2-highgpu-1g:reserved_1yr": 2.742, "a2-highgpu-1g:reserved_3yr": 1.903, "a2-highgpu-1g:savings_plan": 2.179
+  },
+  "asia-east1": {
+    "n2-standard-4": 0.218, "n2-standard-4:on_demand": 0.218, "n2-standard-4:spot": 0.065, "n2-standard-4:reserved_1yr": 0.151, "n2-standard-4:reserved_3yr": 0.105, "n2-standard-4:savings_plan": 0.120,
+    "n2-standard-2": 0.109, "n2-standard-2:on_demand": 0.109, "n2-standard-2:spot": 0.033, "n2-standard-2:reserved_1yr": 0.075, "n2-standard-2:reserved_3yr": 0.052, "n2-standard-2:savings_plan": 0.060,
+    "n2-standard-8": 0.436, "n2-standard-8:on_demand": 0.436, "n2-standard-8:spot": 0.131, "n2-standard-8:reserved_1yr": 0.301, "n2-standard-8:reserved_3yr": 0.209, "n2-standard-8:savings_plan": 0.240,
+    "c2-standard-4": 0.234, "c2-standard-4:on_demand": 0.234, "c2-standard-4:spot": 0.070, "c2-standard-4:reserved_1yr": 0.162, "c2-standard-4:reserved_3yr": 0.112, "c2-standard-4:savings_plan": 0.129,
+    "n2-highmem-4": 0.293, "n2-highmem-4:on_demand": 0.293, "n2-highmem-4:spot": 0.088, "n2-highmem-4:reserved_1yr": 0.202, "n2-highmem-4:reserved_3yr": 0.141, "n2-highmem-4:savings_plan": 0.161,
+    "a2-highgpu-1g": 4.130, "a2-highgpu-1g:on_demand": 4.130, "a2-highgpu-1g:spot": 0.826, "a2-highgpu-1g:reserved_1yr": 2.857, "a2-highgpu-1g:reserved_3yr": 1.982, "a2-highgpu-1g:savings_plan": 2.272
+  }
 }

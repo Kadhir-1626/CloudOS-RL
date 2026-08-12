@@ -142,5 +142,313 @@
     "data_source": "static_fallback",
     "fetched_at": "2026-03-11T05:39:38.137173+00:00",
     "raw_datetime": ""
+  },
+
+  "eastus": {
+    "zone": "US-MIDA-PJM",
+    "carbon_intensity_gco2_per_kwh": 415.0,
+    "gco2_per_kwh": 415.0,
+    "renewable_pct": 28.5,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "eastus2": {
+    "zone": "US-MIDA-PJM",
+    "carbon_intensity_gco2_per_kwh": 436.0,
+    "gco2_per_kwh": 436.0,
+    "renewable_pct": 27.1,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "westus": {
+    "zone": "US-CAL-CISO",
+    "carbon_intensity_gco2_per_kwh": 222.0,
+    "gco2_per_kwh": 222.0,
+    "renewable_pct": 52.3,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "westus2": {
+    "zone": "US-NW-PACW",
+    "carbon_intensity_gco2_per_kwh": 136.0,
+    "gco2_per_kwh": 136.0,
+    "renewable_pct": 68.2,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "westus3": {
+    "zone": "US-SW-AZPS",
+    "carbon_intensity_gco2_per_kwh": 310.0,
+    "gco2_per_kwh": 310.0,
+    "renewable_pct": 35.0,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "centralus": {
+    "zone": "US-MIDW-MISO",
+    "carbon_intensity_gco2_per_kwh": 480.0,
+    "gco2_per_kwh": 480.0,
+    "renewable_pct": 22.0,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "northeurope": {
+    "zone": "IE",
+    "carbon_intensity_gco2_per_kwh": 316.0,
+    "gco2_per_kwh": 316.0,
+    "renewable_pct": 39.2,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "westeurope": {
+    "zone": "NL",
+    "carbon_intensity_gco2_per_kwh": 390.0,
+    "gco2_per_kwh": 390.0,
+    "renewable_pct": 33.8,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "uksouth": {
+    "zone": "GB",
+    "carbon_intensity_gco2_per_kwh": 268.0,
+    "gco2_per_kwh": 268.0,
+    "renewable_pct": 44.6,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "southeastasia": {
+    "zone": "SG",
+    "carbon_intensity_gco2_per_kwh": 453.0,
+    "gco2_per_kwh": 453.0,
+    "renewable_pct": 18.4,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "eastasia": {
+    "zone": "HK",
+    "carbon_intensity_gco2_per_kwh": 610.0,
+    "gco2_per_kwh": 610.0,
+    "renewable_pct": 12.1,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "japaneast": {
+    "zone": "JP-TK",
+    "carbon_intensity_gco2_per_kwh": 506.0,
+    "gco2_per_kwh": 506.0,
+    "renewable_pct": 22.3,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "australiaeast": {
+    "zone": "AU-NSW",
+    "carbon_intensity_gco2_per_kwh": 618.0,
+    "gco2_per_kwh": 618.0,
+    "renewable_pct": 18.7,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "brazilsouth": {
+    "zone": "BR-CS",
+    "carbon_intensity_gco2_per_kwh": 136.0,
+    "gco2_per_kwh": 136.0,
+    "renewable_pct": 62.4,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "canadacentral": {
+    "zone": "CA-ON",
+    "carbon_intensity_gco2_per_kwh": 89.0,
+    "gco2_per_kwh": 89.0,
+    "renewable_pct": 76.2,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "southindia": {
+    "zone": "IN-SO",
+    "carbon_intensity_gco2_per_kwh": 708.0,
+    "gco2_per_kwh": 708.0,
+    "renewable_pct": 11.9,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "swedencentral": {
+    "zone": "SE-SE3",
+    "carbon_intensity_gco2_per_kwh": 42.0,
+    "gco2_per_kwh": 42.0,
+    "renewable_pct": 92.1,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+
+  "us-central1": {
+    "zone": "US-MIDW-MISO",
+    "carbon_intensity_gco2_per_kwh": 480.0,
+    "gco2_per_kwh": 480.0,
+    "renewable_pct": 22.0,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "us-east1": {
+    "zone": "US-SE-SEPA",
+    "carbon_intensity_gco2_per_kwh": 386.0,
+    "gco2_per_kwh": 386.0,
+    "renewable_pct": 30.2,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "us-east4": {
+    "zone": "US-MIDA-PJM",
+    "carbon_intensity_gco2_per_kwh": 415.0,
+    "gco2_per_kwh": 415.0,
+    "renewable_pct": 28.5,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "us-west1": {
+    "zone": "US-NW-PACW",
+    "carbon_intensity_gco2_per_kwh": 136.0,
+    "gco2_per_kwh": 136.0,
+    "renewable_pct": 68.2,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "us-west2": {
+    "zone": "US-CAL-CISO",
+    "carbon_intensity_gco2_per_kwh": 222.0,
+    "gco2_per_kwh": 222.0,
+    "renewable_pct": 52.3,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "europe-west1": {
+    "zone": "BE",
+    "carbon_intensity_gco2_per_kwh": 133.0,
+    "gco2_per_kwh": 133.0,
+    "renewable_pct": 58.4,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "europe-west2": {
+    "zone": "GB",
+    "carbon_intensity_gco2_per_kwh": 268.0,
+    "gco2_per_kwh": 268.0,
+    "renewable_pct": 44.6,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "europe-west3": {
+    "zone": "DE",
+    "carbon_intensity_gco2_per_kwh": 338.0,
+    "gco2_per_kwh": 338.0,
+    "renewable_pct": 38.1,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "europe-west4": {
+    "zone": "NL",
+    "carbon_intensity_gco2_per_kwh": 390.0,
+    "gco2_per_kwh": 390.0,
+    "renewable_pct": 33.8,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "europe-north1": {
+    "zone": "FI",
+    "carbon_intensity_gco2_per_kwh": 52.0,
+    "gco2_per_kwh": 52.0,
+    "renewable_pct": 88.3,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "asia-east1": {
+    "zone": "TW",
+    "carbon_intensity_gco2_per_kwh": 541.0,
+    "gco2_per_kwh": 541.0,
+    "renewable_pct": 14.2,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "asia-east2": {
+    "zone": "HK",
+    "carbon_intensity_gco2_per_kwh": 610.0,
+    "gco2_per_kwh": 610.0,
+    "renewable_pct": 12.1,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "asia-northeast1": {
+    "zone": "JP-TK",
+    "carbon_intensity_gco2_per_kwh": 506.0,
+    "gco2_per_kwh": 506.0,
+    "renewable_pct": 22.3,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "asia-south1": {
+    "zone": "IN-WE",
+    "carbon_intensity_gco2_per_kwh": 708.0,
+    "gco2_per_kwh": 708.0,
+    "renewable_pct": 11.9,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "asia-southeast1": {
+    "zone": "SG",
+    "carbon_intensity_gco2_per_kwh": 453.0,
+    "gco2_per_kwh": 453.0,
+    "renewable_pct": 18.4,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "australia-southeast1": {
+    "zone": "AU-NSW",
+    "carbon_intensity_gco2_per_kwh": 618.0,
+    "gco2_per_kwh": 618.0,
+    "renewable_pct": 18.7,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
+  },
+  "southamerica-east1": {
+    "zone": "BR-CS",
+    "carbon_intensity_gco2_per_kwh": 136.0,
+    "gco2_per_kwh": 136.0,
+    "renewable_pct": 62.4,
+    "data_source": "static_fallback",
+    "fetched_at": "2026-03-11T05:39:38.137173+00:00",
+    "raw_datetime": ""
   }
 }

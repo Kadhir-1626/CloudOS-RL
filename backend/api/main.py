@@ -30,7 +30,7 @@ _CPU_COUNT = os.cpu_count() or 4
 #   New value: cpu_count × 3 gives slightly more thread capacity for this mixed
 #   workload while keeping a firm cap to avoid runaway oversubscription.
 #   Ceiling of 24 prevents excessive thread growth on larger machines.
-_POOL_SIZE = min(32, max(4, _CPU_COUNT * 2))
+_POOL_SIZE = min(32, max(8, _CPU_COUNT * 3))
 
 _INFERENCE_POOL = ThreadPoolExecutor(
     max_workers=_POOL_SIZE,
@@ -63,6 +63,17 @@ async def lifespan(app: FastAPI):
 
     logger.info("CloudOS-RL API starting — loading RL agent ...")
     startup_initialise()
+
+    # Wait for agent to be ready before accepting traffic (max 30s)
+    import time as _time
+    from backend.core.agent_singleton import is_ready
+    _deadline = _time.monotonic() + 30.0
+    while not is_ready() and _time.monotonic() < _deadline:
+        await asyncio.sleep(0.5)
+    if is_ready():
+        logger.info("CloudOS-RL API: agent ready, accepting traffic")
+    else:
+        logger.warning("CloudOS-RL API: agent not ready after 30s, accepting anyway")
 
     try:
         yield

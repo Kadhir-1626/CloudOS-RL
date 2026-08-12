@@ -26,12 +26,12 @@ class RewardFunction:
     """
 
     DEFAULT_WEIGHTS = {
-        "alpha": 0.35,
-        "beta": 0.25,
-        "gamma": 0.20,
-        "delta": 0.20,
-        "epsilon": 0.05,
-    }
+    "alpha": 0.30,
+    "beta": 0.28,
+    "gamma": 0.22,
+    "delta": 0.20,
+    "epsilon": 0.00,
+}
 
     _PURCHASE_MULTIPLIER: Dict[str, float] = {
         "on_demand": 1.00,
