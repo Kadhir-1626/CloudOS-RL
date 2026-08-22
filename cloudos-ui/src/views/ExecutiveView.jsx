@@ -229,7 +229,7 @@ export default function ExecutiveView() {
       >
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Executive Dashboard</h1>
-          <p style={{ color: 'var(--muted)', fontSize: 13 }}>CloudOS-RL performance summary · Auto-refresh every 15s</p>
+          <p style={{ color: 'var(--muted)', fontSize: 13 }}>Velox performance summary · Auto-refresh every 15s</p>
         </div>
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}

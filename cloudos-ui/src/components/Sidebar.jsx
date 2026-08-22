@@ -99,8 +99,8 @@ export default function Sidebar({ activeSection, onNavigate }) {
                 <Zap size={14} color="#fff" />
               </motion.div>
               <div>
-                <div style={{ fontWeight: 800, fontSize: 13, lineHeight: 1 }}>CloudOS</div>
-                <div style={{ fontSize: 9, color: 'var(--accent)', fontWeight: 700, letterSpacing: '0.08em' }}>RL SCHEDULER</div>
+                <div style={{ fontWeight: 800, fontSize: 13, lineHeight: 1 }}>Velox</div>
+                <div style={{ fontSize: 9, color: 'var(--accent)', fontWeight: 700, letterSpacing: '0.08em' }}>SCHEDULER</div>
               </div>
             </motion.div>
           )}

@@ -155,7 +155,7 @@ export default function BasicView() {
           </motion.span>
         </h1>
         <p style={{ color: 'var(--muted)', fontSize: 13 }}>
-          CloudOS-RL — AI-powered multi-cloud scheduler overview
+          Velox — Multi-Cloud Workload Scheduler overview
         </p>
       </motion.div>
 
@@ -257,7 +257,7 @@ export default function BasicView() {
         transition={{ delay: 0.8 }}
         style={{ marginTop: 32, textAlign: 'center', color: 'var(--muted)', fontSize: 11, borderTop: '1px solid var(--border)', paddingTop: 20 }}
       >
-        CloudOS-RL · AI-Native Multi-Cloud Scheduler · PPO + SHAP + Kafka + Kubernetes
+        Velox · Multi-Cloud Workload Scheduler · PPO + SHAP + Kafka + Kubernetes
       </motion.div>
     </div>
   )

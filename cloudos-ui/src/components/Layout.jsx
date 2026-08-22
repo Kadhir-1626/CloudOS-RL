@@ -45,9 +45,9 @@ function InlineSidebar({ activeSection, onNavigate, userInfo }) {
           <Zap size={16} color="#fff" />
         </motion.div>
         <div>
-          <div style={{ fontWeight: 800, fontSize: 14, lineHeight: 1.1 }}>CloudOS</div>
+          <div style={{ fontWeight: 800, fontSize: 14, lineHeight: 1.1 }}>Velox</div>
           <div style={{ fontSize: 10, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginTop: 2 }}>
-            RL Platform
+            PLATFORM
           </div>
         </div>
       </div>
@@ -167,12 +167,12 @@ export default function Layout({ children, userInfo, onLogout, headerExtra, show
               >
                 <Zap size={16} color="#fff" />
               </motion.div>
-              <span style={{ fontWeight: 700, fontSize: 15 }}>CloudOS</span>
+              <span style={{ fontWeight: 700, fontSize: 15 }}>Velox</span>
               <span style={{
                 background: 'var(--surface2)', border: '1px solid var(--border)',
                 padding: '1px 7px', borderRadius: 4, fontSize: 10,
                 color: 'var(--accent)', fontWeight: 700, letterSpacing: '0.05em',
-              }}>RL</span>
+              }}>AI</span>
             </>
           ) : (
             <div style={{ fontSize: 12, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -181,7 +181,7 @@ export default function Layout({ children, userInfo, onLogout, headerExtra, show
                 transition={{ duration: 2, repeat: Infinity }}
                 style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--green)', boxShadow: '0 0 6px var(--green)', display: 'inline-block' }}
               />
-              <span>AI-Native Multi-Cloud Scheduler</span>
+              <span>Multi-Cloud Workload Scheduler</span>
             </div>
           )}
         </div>
@@ -245,7 +245,7 @@ export default function Layout({ children, userInfo, onLogout, headerExtra, show
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--muted)', fontSize: 12 }}>
               <Activity size={13} />
-              <span>AI-Native Multi-Cloud Scheduler</span>
+              <span>Multi-Cloud Workload Scheduler</span>
             </div>
           )}
         </div>

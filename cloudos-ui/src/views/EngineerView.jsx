@@ -120,7 +120,7 @@ function HeroBanner({ agentStatus }) {
             display: 'flex', alignItems: 'center', gap: 6,
           }}
         >
-          <Zap size={11} /> AI-Native Multi-Cloud Scheduler
+          <Zap size={11} /> Multi-Cloud Workload Scheduler
         </motion.div>
 
         <motion.h2
@@ -327,7 +327,7 @@ export default function EngineerView() {
           fontSize: 11, borderTop: '1px solid var(--border)', paddingTop: 20,
         }}
       >
-        CloudOS-RL · AI-Native Multi-Cloud Scheduler · PPO + SHAP + Kafka + Kubernetes
+        Velox · Multi-Cloud Workload Scheduler · PPO + SHAP + Kafka + Kubernetes
       </motion.div>
     </div>
   )
