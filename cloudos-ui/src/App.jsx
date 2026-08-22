@@ -6,6 +6,7 @@ import ThemeToggle from './components/ThemeToggle'
 import BasicView from './views/BasicView'
 import EngineerView from './views/EngineerView'
 import ExecutiveView from './views/ExecutiveView'
+import AdminView from './views/AdminView'
 import ToastContainer from './components/Toast'
 import { useTheme } from './hooks/useTheme'
 
@@ -21,7 +22,9 @@ function ThemeInit() {
 
 function resolveViewByRole(role) {
   if (role === 'executive') return ExecutiveView
-  if (role === 'engineer' || role === 'admin' || role === 'user') return EngineerView
+  if (role === 'engineer') return EngineerView
+  if (role === 'admin') return AdminView
+  if (role === 'user') return EngineerView
   return BasicView
 }
 

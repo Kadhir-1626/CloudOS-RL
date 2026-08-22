@@ -169,7 +169,7 @@ export default function ScheduleForm({ onResult, onLoading }) {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontWeight: 700, fontSize: 15 }}>Submit Workload</span>
+          <span style={{ fontWeight: 700, fontSize: 15 }}>New Workload</span>
           <span className="badge badge-blue">PPO Scheduler</span>
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
@@ -373,12 +373,12 @@ export default function ScheduleForm({ onResult, onLoading }) {
                 <motion.div animate={{ rotate: 360 }} transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}>
                   <Loader size={15} />
                 </motion.div>
-                Computing placement…
+                AI deciding…
               </>
             ) : (
               <>
                 <Send size={15} />
-                Schedule Workload
+                Find Optimal Placement
               </>
             )}
           </motion.button>

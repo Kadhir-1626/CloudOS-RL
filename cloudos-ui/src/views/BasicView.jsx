@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import {
   Zap, Brain, Leaf, Clock, TrendingDown,
   Cloud, Shield, Activity,
+  Upload, CheckCircle, ArrowRight,
 } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import MetricsBar from '../components/MetricsBar'
@@ -112,6 +113,121 @@ function RecentDecisions({ decisions }) {
   )
 }
 
+function HowItWorksSection() {
+  const steps = [
+    {
+      number: '01',
+      icon: Upload,
+      title: 'Submit Workload',
+      desc: 'Tell Velox what you need to run.',
+    },
+    {
+      number: '02',
+      icon: Brain,
+      title: 'AI Decides',
+      desc: 'The AI weighs cost, speed, carbon and reliability — instantly.',
+    },
+    {
+      number: '03',
+      icon: CheckCircle,
+      title: 'Optimal Placement',
+      desc: 'Deployed to the best cloud. Every time. Automatically.',
+    },
+  ]
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.6, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      style={{ marginTop: 40 }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          fontSize: 11,
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          letterSpacing: '0.1em',
+          color: 'var(--muted)',
+          marginBottom: 24,
+        }}
+      >
+        <span>HOW IT WORKS</span>
+        <div style={{ flex: 1, height: 1, background: 'var(--border)', width: '40px' }} />
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+        {steps.map((step, i) => (
+          <motion.div
+            key={step.title}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.65 + i * 0.1, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            className="card"
+            style={{
+              position: 'relative',
+              padding: '28px 24px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
+            {/* Number badge */}
+            <div style={{
+              position: 'absolute', top: -12, left: 20,
+              width: 36, height: 36, borderRadius: 10,
+              background: 'linear-gradient(135deg, var(--accent), var(--accent2))',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 12, fontWeight: 800, color: '#fff',
+              boxShadow: '0 4px 16px rgba(59,130,246,0.4)',
+            }}>
+              {step.number}
+            </div>
+
+            {/* Icon */}
+            <motion.div
+              whileHover={{ scale: 1.1, rotate: 3 }}
+              transition={{ type: 'spring', stiffness: 400 }}
+              style={{
+                width: 56, height: 56, borderRadius: 14,
+                background: 'linear-gradient(135deg, rgba(59,130,246,0.15), rgba(99,102,241,0.15))',
+                border: '1px solid rgba(99,102,241,0.2)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >
+              <step.icon size={24} color="var(--accent)" />
+            </motion.div>
+
+            {/* Content */}
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8 }}>{step.title}</div>
+              <div style={{ color: 'var(--muted)', fontSize: 13, lineHeight: 1.7 }}>{step.desc}</div>
+            </div>
+
+            {/* Arrow between cards */}
+            {i < steps.length - 1 && (
+              <motion.div
+                animate={{ opacity: [0.5, 1, 0.5], x: [0, 4, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', delay: i * 0.2 }}
+                style={{
+                  position: 'absolute', right: -10, top: '50%', transform: 'translateY(-50%)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  width: 20, height: 20, color: 'var(--accent)',
+                }}
+              >
+                <ArrowRight size={16} />
+              </motion.div>
+            )}
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  )
+}
+
 export default function BasicView() {
   const { user } = useAuth()
   const [decisions, setDecisions] = useState([])
@@ -155,7 +271,7 @@ export default function BasicView() {
           </motion.span>
         </h1>
         <p style={{ color: 'var(--muted)', fontSize: 13 }}>
-          Velox — Multi-Cloud Workload Scheduler overview
+          Your workloads. Smarter placement. Every time.
         </p>
       </motion.div>
 
@@ -201,8 +317,7 @@ export default function BasicView() {
         </div>
 
         <p style={{ color: 'var(--muted)', fontSize: 13, maxWidth: 440, margin: '0 auto 20px', lineHeight: 1.7 }}>
-          This platform uses reinforcement learning to optimise multi-cloud workload placement
-          for cost, carbon, and latency simultaneously.
+          Velox decides where your workload runs — and why. Every decision is explainable, every choice is optimal.
         </p>
 
         <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -250,11 +365,14 @@ export default function BasicView() {
         ))}
       </div>
 
+      {/* How It Works section */}
+      <HowItWorksSection />
+
       {/* Footer */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
+        transition={{ delay: 0.9 }}
         style={{ marginTop: 32, textAlign: 'center', color: 'var(--muted)', fontSize: 11, borderTop: '1px solid var(--border)', paddingTop: 20 }}
       >
         Velox · Multi-Cloud Workload Scheduler · PPO + SHAP + Kafka + Kubernetes

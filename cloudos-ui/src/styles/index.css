@@ -415,3 +415,69 @@ label {
   color: #3730a3;
   border-color: rgba(79,70,229,0.25);
 }
+
+[data-theme="light"] .card {
+  color: var(--text);
+}
+
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3 {
+  color: var(--text);
+}
+
+[data-theme="light"] p {
+  color: var(--text2);
+}
+
+/* ── Light mode specific overrides ──────────────────────────────────────── */
+
+[data-theme="light"] [style*="color: var(--muted)"] {
+  color: #475569 !important;
+}
+
+[data-theme="light"] [style*="color: var(--text2)"] {
+  color: #334155 !important;
+}
+
+/* Hero headline in light mode */
+[data-theme="light"] [style*="color: var(--text)"] {
+  color: #0f172a !important;
+}
+
+/* Section labels in light mode */
+[data-theme="light"] [style*="textTransform: uppercase"][style*="letterSpacing"] {
+  color: #64748b !important;
+}
+
+/* Admin config card — always dark */
+[data-theme="light"] .admin-config-card {
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+}
+
+/* Metric card numbers always readable */
+[data-theme="light"] [style*="fontWeight: 900"],
+[data-theme="light"] [style*="fontWeight: 800"] {
+  color: var(--text);
+}
+
+/* Table text in light mode */
+[data-theme="light"] td {
+  color: var(--text2);
+}
+
+[data-theme="light"] th {
+  color: var(--muted);
+  background: var(--surface2) !important;
+}
+
+/* Input placeholder in light mode */
+[data-theme="light"] input::placeholder {
+  color: #94a3b8;
+}
+
+/* Border visibility in light mode */
+[data-theme="light"] [style*="border: 1px solid var(--border)"] {
+  border-color: #e2e8f0 !important;
+}

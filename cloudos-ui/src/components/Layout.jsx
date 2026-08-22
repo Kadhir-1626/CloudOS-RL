@@ -1,119 +1,17 @@
-import { useMemo, useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Activity, Zap, LogOut, User, Bell,
-  LayoutDashboard, BarChart3, Cpu, ShieldCheck, Cloud,
 } from 'lucide-react'
+import Sidebar from './Sidebar'
 
 const ROLE_COLORS = {
   viewer: 'var(--muted)', user: 'var(--accent)',
   engineer: 'var(--green)', admin: 'var(--red)', executive: 'var(--accent2)',
 }
 
-function InlineSidebar({ activeSection, onNavigate, userInfo }) {
-  const items = useMemo(() => {
-    const base = [
-      { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { id: 'metrics',   label: 'Metrics',   icon: BarChart3 },
-      { id: 'decisions', label: 'Decisions', icon: Cpu },
-    ]
-    if (userInfo?.role === 'admin')     base.push({ id: 'admin',    label: 'Admin',    icon: ShieldCheck })
-    if (userInfo?.role === 'executive') base.push({ id: 'snapshot', label: 'Snapshot', icon: Cloud })
-    return base
-  }, [userInfo])
-
-  return (
-    <motion.aside
-      initial={{ x: -20, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      style={{
-        width: 220, borderRight: '1px solid var(--border)',
-        background: 'var(--surface)', padding: '18px 14px', flexShrink: 0,
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 22, padding: '0 6px' }}>
-        <motion.div
-          animate={{ boxShadow: ['0 0 8px rgba(99,102,241,0.3)', '0 0 20px rgba(99,102,241,0.6)', '0 0 8px rgba(99,102,241,0.3)'] }}
-          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-          style={{
-            width: 34, height: 34, borderRadius: 10,
-            background: 'linear-gradient(135deg, var(--accent), var(--accent2))',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}
-        >
-          <Zap size={16} color="#fff" />
-        </motion.div>
-        <div>
-          <div style={{ fontWeight: 800, fontSize: 14, lineHeight: 1.1 }}>Velox</div>
-          <div style={{ fontSize: 10, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginTop: 2 }}>
-            PLATFORM
-          </div>
-        </div>
-      </div>
-
-      <div style={{ fontSize: 11, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, margin: '0 6px 10px' }}>
-        Navigation
-      </div>
-
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        {items.map(({ id, label, icon: Icon }, i) => {
-          const active = activeSection === id
-          return (
-            <motion.button
-              key={id}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.05 }}
-              whileHover={{ backgroundColor: 'var(--surface2)' }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => onNavigate(id)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 10,
-                width: '100%', padding: '10px 12px', borderRadius: 10,
-                border: `1px solid ${active ? 'var(--accent2)' : 'var(--border)'}`,
-                background: active ? 'var(--surface2)' : 'transparent',
-                color: active ? 'var(--text)' : 'var(--muted)',
-                fontSize: 13, fontWeight: active ? 700 : 600,
-                cursor: 'pointer', textAlign: 'left', position: 'relative',
-              }}
-            >
-              {active && (
-                <motion.div
-                  layoutId="sidebarActive"
-                  style={{
-                    position: 'absolute', left: 0, top: 4, bottom: 4,
-                    width: 3, borderRadius: 2,
-                    background: 'linear-gradient(180deg, var(--accent), var(--accent2))',
-                  }}
-                />
-              )}
-              <Icon size={14} /><span>{label}</span>
-            </motion.button>
-          )
-        })}
-      </nav>
-
-      <motion.div
-        animate={{ opacity: [0.7, 1, 0.7] }}
-        transition={{ duration: 2, repeat: Infinity }}
-        style={{ marginTop: 20, padding: '12px 10px', borderRadius: 10, background: 'var(--surface2)', border: '1px solid var(--border)' }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--muted)' }}>
-          <motion.span
-            animate={{ opacity: [1, 0.3, 1], scale: [1, 1.2, 1] }}
-            transition={{ duration: 1.8, repeat: Infinity }}
-            style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--green)', boxShadow: '0 0 8px var(--green)', display: 'inline-block' }}
-          />
-          <span>AI Scheduler Live</span>
-        </div>
-      </motion.div>
-    </motion.aside>
-  )
-}
-
 export default function Layout({ children, userInfo, onLogout, headerExtra, showSidebar = false }) {
-  const [activeSection, setActiveSection] = useState('dashboard')
+  const [activeSection, setActiveSection] = useState('hero')
   const [scrolled, setScrolled] = useState(false)
   const [bellShake, setBellShake] = useState(false)
   const bellTimer = useRef(null)
@@ -135,8 +33,6 @@ export default function Layout({ children, userInfo, onLogout, headerExtra, show
 
   const handleNavigate = (sectionId) => {
     setActiveSection(sectionId)
-    const el = document.getElementById(`section-${sectionId}`)
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   return (
@@ -253,7 +149,7 @@ export default function Layout({ children, userInfo, onLogout, headerExtra, show
 
       <div style={{ display: 'flex', flex: 1 }}>
         {showSidebar && userInfo && (
-          <InlineSidebar activeSection={activeSection} onNavigate={handleNavigate} userInfo={userInfo} />
+          <Sidebar activeSection={activeSection} onNavigate={handleNavigate} />
         )}
 
         <main style={{

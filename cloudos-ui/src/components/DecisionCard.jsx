@@ -129,7 +129,7 @@ export default function DecisionCard({ decision: initial }) {
     try {
       await explainDecision(decision.decision_id)
       setExplainState('polling')
-      setExplainMsg('SHAP computing… ~10 seconds')
+      setExplainMsg('Analyzing decision factors…')
       safeToast.info('SHAP explanation requested')
 
       let attempts = 0
@@ -192,7 +192,7 @@ export default function DecisionCard({ decision: initial }) {
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16, position: 'relative' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
-            <span style={{ fontWeight: 700, fontSize: 15 }}>Placement Decision</span>
+            <span style={{ fontWeight: 700, fontSize: 15 }}>AI Verdict</span>
             <span className={`badge ${PURCHASE_BADGE[decision?.purchase_option] || 'badge-blue'}`}>
               {(decision?.purchase_option || 'on_demand').replace(/_/g, ' ')}
             </span>
@@ -279,10 +279,10 @@ export default function DecisionCard({ decision: initial }) {
                 <motion.div animate={{ rotate: 360 }} transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}>
                   <Loader size={13} />
                 </motion.div>
-                {explainMsg || 'Requesting…'}
+                {explainMsg || 'Analyzing decision factors…'}
               </>
             ) : (
-              <><Zap size={13} />Explain with SHAP</>
+              <><Zap size={13} />Why this cloud?</>
             )}
           </motion.button>
 
@@ -321,7 +321,7 @@ export default function DecisionCard({ decision: initial }) {
           >
             <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
               <Zap size={13} />
-              SHAP Explanation
+              Decision Reasoning
               {decision?.explanation?.confidence != null && (
                 <span style={{ fontWeight: 400, fontSize: 11, color: 'var(--muted)' }}>
                   · {(Number(decision.explanation.confidence) * 100).toFixed(0)}% confidence

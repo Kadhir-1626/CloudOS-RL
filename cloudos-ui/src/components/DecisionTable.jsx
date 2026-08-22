@@ -160,7 +160,7 @@ export default function DecisionTable() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontWeight: 700, fontSize: 15 }}>Decision History</span>
+          <span style={{ fontWeight: 700, fontSize: 15 }}>Placement Log</span>
           <span style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 20, padding: '2px 8px', fontSize: 11, color: 'var(--muted)', fontWeight: 600 }}>
             {filtered.length}
           </span>
@@ -233,8 +233,8 @@ export default function DecisionTable() {
             >
               📋
             </motion.div>
-            <div style={{ fontWeight: 600, color: 'var(--text2)' }}>No decisions yet</div>
-            <div style={{ fontSize: 12 }}>Submit a workload to see decisions appear here</div>
+            <div style={{ fontWeight: 600, color: 'var(--text2)' }}>No placements yet</div>
+            <div style={{ fontSize: 12 }}>Run your first workload to see Velox in action</div>
           </div>
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>

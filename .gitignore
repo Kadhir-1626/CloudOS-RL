@@ -61,3 +61,25 @@ cloudos-ui/dist/
 cloudos-ui/.vite/
 # Local authentication data
 data/users.json
+
+# Deployment
+dist/
+.vercel/
+render.yaml.local
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Large model files - keep best model only
+models/checkpoints/
+models/tensorboard/
+models/metrics/
+models/eval_logs/
+models/cloudos_rl_final.zip
+
+# Node
+cloudos-ui/node_modules/
+cloudos-ui/dist/

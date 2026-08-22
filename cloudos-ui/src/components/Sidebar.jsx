@@ -3,44 +3,56 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, Send, ListChecks, Zap,
   BarChart2, Activity, DollarSign, Leaf,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, Settings,
 } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 
 const NAV_ITEMS = [
-  { id: 'dashboard',     label: 'Dashboard',      icon: LayoutDashboard, roles: ['engineer','admin','executive','viewer','user'] },
-  { id: 'schedule',      label: 'Schedule',       icon: Send,            roles: ['engineer','admin','user'] },
-  { id: 'decisions',     label: 'Decisions',      icon: ListChecks,      roles: ['engineer','admin','executive','viewer','user'] },
-  { id: 'explainability',label: 'Explainability', icon: Zap,             roles: ['engineer','admin'] },
-  { id: 'metrics',       label: 'Metrics',        icon: BarChart2,       roles: ['engineer','admin','executive'] },
-  { id: 'kafka',         label: 'Kafka Events',   icon: Activity,        roles: ['engineer','admin'] },
-  { id: 'cost',          label: 'Cost Insights',  icon: DollarSign,      roles: ['engineer','admin','executive'] },
-  { id: 'carbon',        label: 'Carbon Insights',icon: Leaf,            roles: ['engineer','admin','executive'] },
+  { id: 'hero',        label: 'Overview',      icon: LayoutDashboard, roles: ['engineer','admin','executive','viewer','user'] },
+  { id: 'metrics',     label: 'Performance',   icon: BarChart2,       roles: ['engineer','admin','executive'] },
+  { id: 'schedule',    label: 'New Workload',  icon: Send,            roles: ['engineer','admin','user'] },
+  { id: 'decisions',   label: 'Placements',    icon: ListChecks,      roles: ['engineer','admin','executive','viewer','user'] },
+  { id: 'intelligence',label: 'Intelligence',  icon: Zap,             roles: ['engineer','admin'] },
+  { id: 'kafka',       label: 'Stream',        icon: Activity,        roles: ['engineer','admin'] },
+  { id: 'cost',        label: 'Cost',          icon: DollarSign,      roles: ['engineer','admin','executive'] },
+  { id: 'carbon',      label: 'Carbon',        icon: Leaf,            roles: ['engineer','admin','executive'] },
+  { id: 'control',     label: 'Control',       icon: Settings,        roles: ['admin'] },
 ]
 
-function AIHeartbeat() {
-  const points = [0, 3, 6, 3, 10, -4, 14, 0, 18, 0]
-  const d = points.reduce((acc, v, i) =>
-    i === 0 ? `M0,${8 - v}` : i % 2 === 0 ? `${acc} L${v},${8 - points[i - 1]}` : acc
-  , '')
+const SECTION_MAP = {
+  hero:         'section-hero',
+  metrics:      'section-metrics',
+  schedule:     'section-schedule',
+  decisions:    'section-decisions',
+  intelligence: 'section-intelligence',
+  kafka:        'section-kafka',
+  cost:         'section-cost',
+  carbon:       'section-carbon',
+  control:      'section-control',
+}
+
+function AIHeartbeat({ user }) {
+  const role = (user?.role || 'viewer').toUpperCase()
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px 14px' }}>
-      <div style={{ position: 'relative', width: 18, height: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 6, padding: '10px 16px 14px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <motion.div
           animate={{ opacity: [1, 0.3, 1] }}
           transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
           style={{
             width: 8, height: 8, borderRadius: '50%',
-            background: 'var(--green)', marginTop: 4,
+            background: 'var(--green)', boxShadow: '0 0 8px var(--green)',
           }}
         />
+        <span style={{ fontSize: 11, color: 'var(--green)', fontWeight: 700, letterSpacing: '0.05em' }}>
+          AI Ready
+        </span>
       </div>
-      <div>
-        <div style={{ fontSize: 10, color: 'var(--green)', fontWeight: 700, letterSpacing: '0.05em' }}>
-          AI MODEL ACTIVE
-        </div>
-        <div style={{ fontSize: 9, color: 'var(--muted)', marginTop: 1 }}>PPO · SHAP ready</div>
+      <div style={{ marginLeft: 16 }}>
+        <span style={{ fontSize: 9, color: 'var(--accent2)', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          {role}
+        </span>
       </div>
     </div>
   )
@@ -51,6 +63,15 @@ export default function Sidebar({ activeSection, onNavigate }) {
   const [collapsed, setCollapsed] = useState(false)
   const role = user?.role || 'viewer'
   const visible = NAV_ITEMS.filter(item => item.roles.includes(role))
+
+  const handleClick = (itemId) => {
+    onNavigate?.(itemId)
+    const sectionId = SECTION_MAP[itemId]
+    if (sectionId) {
+      const el = document.getElementById(sectionId)
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
 
   return (
     <motion.aside
@@ -134,7 +155,7 @@ export default function Sidebar({ activeSection, onNavigate }) {
               transition={{ delay: i * 0.04, duration: 0.22 }}
               whileHover={{ backgroundColor: isActive ? undefined : 'var(--surface2)' }}
               whileTap={{ scale: 0.97 }}
-              onClick={() => onNavigate?.(item.id)}
+              onClick={() => handleClick(item.id)}
               title={collapsed ? item.label : undefined}
               style={{
                 display: 'flex', alignItems: 'center',
@@ -195,7 +216,7 @@ export default function Sidebar({ activeSection, onNavigate }) {
             transition={{ duration: 0.2 }}
             style={{ borderTop: '1px solid var(--border)' }}
           >
-            <AIHeartbeat />
+            <AIHeartbeat user={user} />
           </motion.div>
         )}
       </AnimatePresence>

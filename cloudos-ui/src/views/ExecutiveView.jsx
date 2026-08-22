@@ -4,6 +4,7 @@ import CountUp from 'react-countup'
 import {
   TrendingDown, Leaf, Clock, Cpu, BarChart2,
   Cloud, MapPin, Server, Tag, Activity,
+  Brain, Zap, Shield,
 } from 'lucide-react'
 import { getDecisions, getStatus } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
@@ -190,6 +191,52 @@ function DecisionSnapshotCard({ decision }) {
   )
 }
 
+function CloudIntelligenceCard() {
+  const rows = [
+    { icon: Brain, label: 'AI Model', value: 'PPO · 2M Steps' },
+    { icon: Zap, label: 'Explainability', value: 'SHAP Attribution' },
+    { icon: Leaf, label: 'Carbon Signal', value: '50 Regions Tracked' },
+    { icon: Shield, label: 'SLA Enforcement', value: 'Real-time' },
+  ]
+
+  return (
+    <motion.div
+      className="card"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      style={{ marginTop: 24 }}
+    >
+      <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Brain size={14} color="var(--accent)" /> Placement Intelligence
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+        {rows.map((row, i) => (
+          <motion.div
+            key={row.label}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.35 + i * 0.08, duration: 0.35 }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 12,
+              padding: '14px 16px',
+              background: i % 2 === 0 ? 'transparent' : 'var(--surface2)',
+              borderBottom: i < rows.length - 1 ? '1px solid var(--border)' : 'none',
+              borderLeft: `3px solid var(--accent)`,
+            }}
+          >
+            <row.icon size={16} color="var(--accent)" style={{ flexShrink: 0 }} />
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontWeight: 600, fontSize: 13 }}>{row.label}</span>
+              <span style={{ color: 'var(--muted)', fontSize: 12 }}>{row.value}</span>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  )
+}
+
 export default function ExecutiveView() {
   const { user } = useAuth()
   const [decisions, setDecisions] = useState([])
@@ -229,7 +276,7 @@ export default function ExecutiveView() {
       >
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Executive Dashboard</h1>
-          <p style={{ color: 'var(--muted)', fontSize: 13 }}>Velox performance summary · Auto-refresh every 15s</p>
+          <p style={{ color: 'var(--muted)', fontSize: 13 }}>Velox performance overview · Live data · Refreshes every 15s</p>
         </div>
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -250,14 +297,17 @@ export default function ExecutiveView() {
         <KpiCard index={3} icon={Clock}       label="Avg Latency"       value={`${avgLatency.toFixed(0)}ms`}          rawValue={avgLatency}                       sub="scheduling decision time" color="var(--accent2)" />
       </div>
 
+      {/* Cloud Intelligence Card */}
+      <CloudIntelligenceCard />
+
       {/* Two column */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginTop: 24, marginBottom: 24 }}>
         {/* Cloud distribution donut */}
         <motion.div
           className="card"
           initial={{ opacity: 0, x: -16 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3, duration: 0.4 }}
+          transition={{ delay: 0.4, duration: 0.4 }}
         >
           <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
             <BarChart2 size={14} />Cloud Distribution
@@ -270,22 +320,22 @@ export default function ExecutiveView() {
           className="card"
           initial={{ opacity: 0, x: 16 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35, duration: 0.4 }}
+          transition={{ delay: 0.45, duration: 0.4 }}
         >
-          <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 16 }}>Estimated Business Impact</div>
+          <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 16 }}>What Velox Saved You</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {[
               { label: 'Avg cost reduction per decision',   value: `${avgCost.toFixed(1)}%`    },
               { label: 'Avg carbon reduction per decision', value: `${avgCarbon.toFixed(1)}%`   },
               { label: 'Avg scheduling latency',            value: `${avgLatency.toFixed(0)}ms` },
-              { label: 'Est. total cost avoided (sample)',  value: monthlySavingsEst            },
+              { label: 'Projected monthly savings',  value: monthlySavingsEst            },
               { label: 'AI scheduler', value: status?.agent_loaded ? '✅ Operational' : '⚠ Initialising' },
             ].map(({ label, value }, i) => (
               <motion.div
                 key={label}
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + i * 0.06 }}
+                transition={{ delay: 0.5 + i * 0.06 }}
                 style={{
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                   padding: '9px 12px', background: 'var(--surface2)', borderRadius: 8, fontSize: 13,
@@ -297,7 +347,7 @@ export default function ExecutiveView() {
             ))}
           </div>
           <p style={{ color: 'var(--muted)', fontSize: 11, marginTop: 12, lineHeight: 1.6 }}>
-            * Estimates based on current session decisions. Actual savings depend on workload volume and cloud pricing.
+            Based on session activity. Actual savings scale with workload volume.
           </p>
         </motion.div>
       </div>
