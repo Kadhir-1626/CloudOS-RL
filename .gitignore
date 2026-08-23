@@ -56,9 +56,9 @@ models/*.zip
 models/*.pkl
 
 # Frontend
-cloudos-ui/node_modules/
-cloudos-ui/dist/
-cloudos-ui/.vite/
+velox-ui/node_modules/
+velox-ui/dist/
+velox-ui/.vite/
 # Local authentication data
 data/users.json
 
@@ -81,5 +81,5 @@ models/eval_logs/
 models/cloudos_rl_final.zip
 
 # Node
-cloudos-ui/node_modules/
-cloudos-ui/dist/
+velox-ui/node_modules/
+velox-ui/dist/

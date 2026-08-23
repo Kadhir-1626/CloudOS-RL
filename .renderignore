@@ -1,6 +1,6 @@
-cloudos-ui/
-cloudos-ui/node_modules/
-cloudos-ui/dist/
+velox-ui/
+velox-ui/node_modules/
+velox-ui/dist/
 *.zip
 models/checkpoints/
 models/tensorboard/

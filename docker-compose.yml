@@ -1,21 +1,20 @@
 # =============================================================================
-# CloudOS-RL Docker Compose Stack
+# Velox Docker Compose Stack
 # =============================================================================
 # Services included:
-#   prometheus      — scrapes bridge at :9090, exposes query API at :9091
-#   grafana-docker  — optional Grafana at :3001
+#   zookeeper       — Kafka coordination service (with healthcheck)
+#   kafka           — Message broker for RL agent communication
+#   prometheus      — Scrapes bridge at :9090, exposes query API at :9091
+#   grafana-docker  — Optional Grafana at :3001
 #
-# Services deliberately NOT in Docker (already running natively on Windows):
-#   kafka       — native / separate runtime
-#   zookeeper   — native / separate runtime
-#   bridge      — native via:
-#                 python -m ai_engine.kafka.kafka_prometheus_bridge
+# Services NOT in Docker (running natively on Windows):
+#   bridge          — Native via: python -m ai_engine.kafka.kafka_prometheus_bridge
 #
 # Usage:
-#   docker compose up -d prometheus
+#   docker compose up -d zookeeper kafka prometheus
 #   docker compose --profile docker-grafana up -d
 #   docker compose down
-#   docker compose logs -f prometheus
+#   docker compose logs -f kafka
 #
 # After starting:
 #   Prometheus UI:  http://localhost:9091
@@ -30,12 +29,86 @@ networks:
     driver: bridge
 
 volumes:
-  prometheus-data:
-    name: cloudos-prometheus-data
-  grafana-data:
-    name: cloudos-grafana-data
+  kafka_data:
+    driver: local
+  zookeeper_data:
+    driver: local
+  zookeeper_logs:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
 
 services:
+  # ===========================================================================
+  # ZooKeeper — Kafka coordination service
+  # ===========================================================================
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: velox-zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      KAFKA_OPTS: "-Dzookeeper.4lw.commands.whitelist=ruok,stat,srvr"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cd /usr/bin && ./zookeeper-shell localhost:2181 ls / 2>&1 | grep -q zookeeper || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+    restart: unless-stopped
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_logs:/var/lib/zookeeper/log
+    networks:
+      - cloudos-net
+
+  # ===========================================================================
+  # Kafka — Message broker for RL agent communication
+  # ===========================================================================
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: velox-kafka
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://192.168.49.1:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_HEAP_OPTS: "-Xmx512M -Xms256M"
+      KAFKA_LOG_RETENTION_HOURS: 24
+      KAFKA_LOG_SEGMENT_BYTES: 1073741824
+      KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS: 300000
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: on-failure:3
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - cloudos-net
+
   # ===========================================================================
   # Prometheus — Time Series Database + Query API
   # ===========================================================================
@@ -44,14 +117,14 @@ services:
   # ===========================================================================
   prometheus:
     image: prom/prometheus:v2.45.0
-    container_name: cloudos-prometheus
+    container_name: velox-prometheus
     restart: unless-stopped
     ports:
       - "9091:9090"
     volumes:
       - ./infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./infrastructure/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
-      - prometheus-data:/prometheus
+      - prometheus_data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
@@ -82,14 +155,14 @@ services:
   # ===========================================================================
   grafana-docker:
     image: grafana/grafana:10.2.0
-    container_name: cloudos-grafana-docker
+    container_name: velox-grafana-docker
     restart: unless-stopped
     profiles:
       - docker-grafana
     ports:
       - "3001:3000"
     volumes:
-      - grafana-data:/var/lib/grafana
+      - grafana_data:/var/lib/grafana
       - ./infrastructure/grafana/grafana_provisioning.yaml:/etc/grafana/provisioning/datasources/cloudos.yaml:ro
     environment:
       GF_SECURITY_ADMIN_USER: admin
