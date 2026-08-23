@@ -50,7 +50,8 @@ function SectionLabel({ children }) {
         textTransform: 'uppercase',
         letterSpacing: '0.1em',
         color: 'var(--muted)',
-        marginBottom: 16,
+        marginBottom: 24,
+        marginTop: 0,
       }}
     >
       <span>{children}</span>
@@ -292,7 +293,7 @@ export default function EngineerView() {
   return (
     <div style={{ scrollBehavior: 'smooth' }}>
       {/* SECTION 1 — HERO */}
-      <SectionWrapper id="section-hero" delay={0} style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 24px' }}>
+      <SectionWrapper id="section-hero" delay={0} style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px 60px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center', maxWidth: 1200, width: '100%' }}>
           {/* Left side */}
           <div>
@@ -389,13 +390,13 @@ export default function EngineerView() {
       </SectionWrapper>
 
       {/* SECTION 2 — METRICS */}
-      <SectionWrapper id="section-metrics" delay={0.1} style={{ padding: '60px 24px', maxWidth: 1200, margin: '0 auto', width: '100%' }}>
+      <SectionWrapper id="section-metrics" delay={0.1} style={{ padding: '48px 24px 0', maxWidth: 1200, margin: '0 auto', width: '100%' }}>
         <SectionLabel>LIVE PERFORMANCE</SectionLabel>
         <MetricsBar />
       </SectionWrapper>
 
       {/* SECTION 3 — SCHEDULE + DECISION */}
-      <SectionWrapper id="section-schedule" delay={0.15} style={{ padding: '60px 24px', maxWidth: 1200, margin: '0 auto', width: '100%' }}>
+      <SectionWrapper id="section-schedule" delay={0.15} style={{ padding: '48px 24px 0', maxWidth: 1200, margin: '0 auto', width: '100%' }}>
         <SectionLabel>WORKLOAD SCHEDULER</SectionLabel>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
           <ScheduleForm onResult={handleResult} onLoading={handleLoading} />
@@ -463,13 +464,13 @@ export default function EngineerView() {
       </SectionWrapper>
 
       {/* SECTION 4 — DECISION HISTORY */}
-      <SectionWrapper id="section-decisions" delay={0.2} style={{ padding: '60px 24px', maxWidth: 1200, margin: '0 auto', width: '100%' }}>
+      <SectionWrapper id="section-decisions" delay={0.2} style={{ padding: '48px 24px 0', maxWidth: 1200, margin: '0 auto', width: '100%' }}>
         <SectionLabel>DECISION LOG</SectionLabel>
         <DecisionTable />
       </SectionWrapper>
 
       {/* SECTION 5 — SYSTEM INTELLIGENCE */}
-      <SectionWrapper id="section-intelligence" delay={0.25} style={{ padding: '60px 24px', maxWidth: 1200, margin: '0 auto', width: '100%' }}>
+      <SectionWrapper id="section-intelligence" delay={0.25} style={{ padding: '48px 24px 48px', maxWidth: 1200, margin: '0 auto', width: '100%' }}>
         <SectionLabel>SYSTEM INTELLIGENCE</SectionLabel>
         <SystemIntelligenceCard />
       </SectionWrapper>

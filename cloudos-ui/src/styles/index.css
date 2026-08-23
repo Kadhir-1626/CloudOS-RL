@@ -481,3 +481,18 @@ label {
 [data-theme="light"] [style*="border: 1px solid var(--border)"] {
   border-color: #e2e8f0 !important;
 }
+
+/* Section spacing consistency */
+main {
+  padding-top: 32px !important;
+  padding-bottom: 64px !important;
+}
+
+.section-gap {
+  padding-top: 48px;
+  padding-bottom: 0;
+}
+
+.section-gap:last-child {
+  padding-bottom: 48px;
+}

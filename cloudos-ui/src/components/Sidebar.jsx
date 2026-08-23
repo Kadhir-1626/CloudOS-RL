@@ -2,21 +2,18 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, Send, ListChecks, Zap,
-  BarChart2, Activity, DollarSign, Leaf,
+  BarChart2,
   ChevronLeft, ChevronRight, Settings,
 } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 
 const NAV_ITEMS = [
-  { id: 'hero',        label: 'Overview',      icon: LayoutDashboard, roles: ['engineer','admin','executive','viewer','user'] },
-  { id: 'metrics',     label: 'Performance',   icon: BarChart2,       roles: ['engineer','admin','executive'] },
-  { id: 'schedule',    label: 'New Workload',  icon: Send,            roles: ['engineer','admin','user'] },
-  { id: 'decisions',   label: 'Placements',    icon: ListChecks,      roles: ['engineer','admin','executive','viewer','user'] },
-  { id: 'intelligence',label: 'Intelligence',  icon: Zap,             roles: ['engineer','admin'] },
-  { id: 'kafka',       label: 'Stream',        icon: Activity,        roles: ['engineer','admin'] },
-  { id: 'cost',        label: 'Cost',          icon: DollarSign,      roles: ['engineer','admin','executive'] },
-  { id: 'carbon',      label: 'Carbon',        icon: Leaf,            roles: ['engineer','admin','executive'] },
-  { id: 'control',     label: 'Control',       icon: Settings,        roles: ['admin'] },
+  { id: 'hero',         label: 'Overview',     icon: LayoutDashboard, roles: ['engineer','admin','executive','viewer','user'] },
+  { id: 'metrics',      label: 'Performance',  icon: BarChart2,       roles: ['engineer','admin','executive'] },
+  { id: 'schedule',     label: 'New Workload', icon: Send,            roles: ['engineer','admin','user'] },
+  { id: 'decisions',    label: 'Placements',   icon: ListChecks,      roles: ['engineer','admin','executive','viewer','user'] },
+  { id: 'intelligence', label: 'Intelligence', icon: Zap,             roles: ['engineer','admin'] },
+  { id: 'control',      label: 'Control',      icon: Settings,        roles: ['admin'] },
 ]
 
 const SECTION_MAP = {
@@ -25,9 +22,6 @@ const SECTION_MAP = {
   schedule:     'section-schedule',
   decisions:    'section-decisions',
   intelligence: 'section-intelligence',
-  kafka:        'section-kafka',
-  cost:         'section-cost',
-  carbon:       'section-carbon',
   control:      'section-control',
 }
 
