@@ -1,10 +1,19 @@
 import axios from 'axios'
 
 /**
+ * Base URL for API calls
+ * - Development: empty string (uses Vite proxy)
+ * - Production: full Render backend URL from env var
+ */
+const BASE_URL = import.meta.env.PROD
+  ? (import.meta.env.VITE_API_BASE_URL || 'https://velox-api-p50n.onrender.com')
+  : ''
+
+/**
  * Main API client for Velox scheduling endpoints
  */
 const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: `${BASE_URL}/api/v1`,
   timeout: 15000,
   headers: { 'Content-Type': 'application/json' },
 })
@@ -84,7 +93,7 @@ export const explainDecision = (id) =>
  * Separate Auth API client
  */
 const authApi = axios.create({
-  baseURL: '/auth',
+  baseURL: `${BASE_URL}/auth`,
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
 })
@@ -134,7 +143,7 @@ export const getMe = () => {
   const token = localStorage.getItem('cloudos_token')
 
   return axios
-    .get('/auth/me', {
+    .get(`${BASE_URL}/auth/me`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
     .then((r) => r.data)

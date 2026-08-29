@@ -30,5 +30,10 @@ export default defineConfig({
     chunkSizeWarningLimit: 600,
     sourcemap: false,
     minify: 'esbuild',
+    define: {
+      'import.meta.env.VITE_API_BASE_URL': JSON.stringify(
+        process.env.VITE_API_BASE_URL || 'https://velox-api-p50n.onrender.com'
+      ),
+    },
   },
 })
