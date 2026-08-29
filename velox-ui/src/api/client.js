@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 /**
- * Main API client for CloudOS scheduling endpoints
+ * Main API client for Velox scheduling endpoints
  */
 const api = axios.create({
   baseURL: '/api/v1',

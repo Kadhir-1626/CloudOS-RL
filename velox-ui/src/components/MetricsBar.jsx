@@ -191,10 +191,10 @@ export default function MetricsBar() {
         <Metric
           index={0}
           icon={Cpu}
-          label="Decisions Served"
+          label="Placements Made"
           value={String(status?.decisions_served ?? 0)}
           rawValue={status?.decisions_served ?? 0}
-          sub={status?.agent_loaded ? 'PPO model active' : 'Agent loading…'}
+          sub={status?.agent_loaded ? 'AI running' : 'Agent loading…'}
           color="var(--accent)"
           highlight={Boolean(status?.agent_loaded)}
           sparkData={decisions.slice(-10).map((_, i) => i + 1)}
@@ -202,7 +202,7 @@ export default function MetricsBar() {
         <Metric
           index={1}
           icon={Clock}
-          label="Avg Latency"
+          label="Decision Speed"
           value={avgLatency != null ? `${avgLatency}ms` : '—'}
           rawValue={avgLatency}
           sub={avgLatency != null ? (avgLatency < 200 ? '✓ Within target' : 'Inference observed') : 'No data yet'}
@@ -212,10 +212,10 @@ export default function MetricsBar() {
         <Metric
           index={2}
           icon={TrendingDown}
-          label="Avg Cost Savings"
+          label="Cost Reduction"
           value={avgCost != null ? `${avgCost}%` : '—'}
           rawValue={avgCost}
-          sub="vs on-demand baseline"
+          sub="vs on-demand"
           color="var(--green)"
           highlight={avgCost != null && avgCost > 20}
           sparkData={costSpark}
@@ -223,10 +223,10 @@ export default function MetricsBar() {
         <Metric
           index={3}
           icon={Leaf}
-          label="Avg Carbon Savings"
+          label="Carbon Saved"
           value={avgCarbon != null ? `${avgCarbon}%` : '—'}
           rawValue={avgCarbon}
-          sub="vs us-east-1 baseline"
+          sub="vs baseline"
           color="var(--green2)"
           sparkData={carbonSpark}
         />

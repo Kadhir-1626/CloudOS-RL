@@ -317,3 +317,182 @@ label {
 [data-theme="light"] .login-card .card {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.10), 0 0 0 1px rgba(99, 102, 241, 0.08);
 }
+/* ── Light mode framer-motion component fixes ─────────────────────────────── */
+
+[data-theme="light"] .card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+[data-theme="light"] button {
+  color: var(--text2);
+}
+
+[data-theme="light"] select,
+[data-theme="light"] input {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+[data-theme="light"] select option {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* Metric card numbers in light mode */
+[data-theme="light"] [style*="font-size: 24px"],
+[data-theme="light"] [style*="fontSize: 24"] {
+  color: var(--text);
+}
+
+/* Sparkline visibility in light mode */
+[data-theme="light"] svg polyline {
+  opacity: 0.85;
+}
+
+/* Decision table rows in light mode */
+[data-theme="light"] tr:hover td {
+  background: var(--surface2);
+}
+
+/* Toast in light mode */
+[data-theme="light"] .toast-success {
+  background: rgba(5,150,105,0.08);
+  border-color: rgba(5,150,105,0.25);
+  color: #065f46;
+}
+
+[data-theme="light"] .toast-error {
+  background: rgba(220,38,38,0.08);
+  border-color: rgba(220,38,38,0.25);
+  color: #991b1b;
+}
+
+[data-theme="light"] .toast-info {
+  background: rgba(37,99,235,0.08);
+  border-color: rgba(37,99,235,0.25);
+  color: #1e3a8a;
+}
+
+/* Sidebar in light mode */
+[data-theme="light"] aside {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+/* Hero banner in light mode */
+[data-theme="light"] .card[style*="rgba(59,130,246,0.06)"] {
+  background: rgba(59,130,246,0.04);
+}
+
+/* Skeleton in light mode */
+[data-theme="light"] .skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface2) 25%,
+    var(--surface3) 50%,
+    var(--surface2) 75%
+  );
+  background-size: 800px 100%;
+}
+
+/* Badge contrast in light mode */
+[data-theme="light"] .badge-blue {
+  background: rgba(37,99,235,0.1);
+  color: #1d4ed8;
+  border-color: rgba(37,99,235,0.25);
+}
+
+[data-theme="light"] .badge-green {
+  background: rgba(5,150,105,0.1);
+  color: #065f46;
+  border-color: rgba(5,150,105,0.25);
+}
+
+[data-theme="light"] .badge-purple {
+  background: rgba(79,70,229,0.1);
+  color: #3730a3;
+  border-color: rgba(79,70,229,0.25);
+}
+
+[data-theme="light"] .card {
+  color: var(--text);
+}
+
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3 {
+  color: var(--text);
+}
+
+[data-theme="light"] p {
+  color: var(--text2);
+}
+
+/* ── Light mode specific overrides ──────────────────────────────────────── */
+
+[data-theme="light"] [style*="color: var(--muted)"] {
+  color: #475569 !important;
+}
+
+[data-theme="light"] [style*="color: var(--text2)"] {
+  color: #334155 !important;
+}
+
+/* Hero headline in light mode */
+[data-theme="light"] [style*="color: var(--text)"] {
+  color: #0f172a !important;
+}
+
+/* Section labels in light mode */
+[data-theme="light"] [style*="textTransform: uppercase"][style*="letterSpacing"] {
+  color: #64748b !important;
+}
+
+/* Admin config card — always dark */
+[data-theme="light"] .admin-config-card {
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+}
+
+/* Metric card numbers always readable */
+[data-theme="light"] [style*="fontWeight: 900"],
+[data-theme="light"] [style*="fontWeight: 800"] {
+  color: var(--text);
+}
+
+/* Table text in light mode */
+[data-theme="light"] td {
+  color: var(--text2);
+}
+
+[data-theme="light"] th {
+  color: var(--muted);
+  background: var(--surface2) !important;
+}
+
+/* Input placeholder in light mode */
+[data-theme="light"] input::placeholder {
+  color: #94a3b8;
+}
+
+/* Border visibility in light mode */
+[data-theme="light"] [style*="border: 1px solid var(--border)"] {
+  border-color: #e2e8f0 !important;
+}
+
+/* Section spacing consistency */
+main {
+  padding-top: 32px !important;
+  padding-bottom: 64px !important;
+}
+
+.section-gap {
+  padding-top: 48px;
+  padding-bottom: 0;
+}
+
+.section-gap:last-child {
+  padding-bottom: 48px;
+}

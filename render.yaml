@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: velox-api
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.api.main:app --host 0.0.0.0 --port $PORT --workers 1
+    envVars:
+      - key: CLOUDOS_AUTH_REQUIRED
+        value: "false"
+      - key: CLOUDOS_MODEL_PATH
+        value: "models/best/best_model.zip"
+      - key: CLOUDOS_VECNORM_PATH
+        value: "models/vec_normalize.pkl"
+      - key: CLOUDOS_JWT_SECRET
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: "3.11.0"

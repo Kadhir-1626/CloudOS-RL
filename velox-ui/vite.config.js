@@ -16,4 +16,19 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom'],
+          'framer': ['framer-motion'],
+          'icons': ['lucide-react'],
+          'countup': ['react-countup'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600,
+    sourcemap: false,
+    minify: 'esbuild',
+  },
 })

@@ -142,14 +142,14 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
-          cache-dependency-path: cloudos-ui/package-lock.json
+          cache-dependency-path: velox-ui/package-lock.json
 
       - name: Install dependencies
-        working-directory: cloudos-ui
+        working-directory: velox-ui
         run: npm ci
 
       - name: Build
-        working-directory: cloudos-ui
+        working-directory: velox-ui
         run: npm run build
         env:
           VITE_API_URL: http://localhost:8001
