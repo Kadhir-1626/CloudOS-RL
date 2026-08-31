@@ -89,11 +89,26 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+import os
+
+ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://velox-multicloud-scheduler.vercel.app",
+    "https://velox-multicloud-scheduler-*.vercel.app",
+]
+
+# Also allow any origin in development
+if os.environ.get("CLOUDOS_AUTH_REQUIRED", "false").lower() == "false":
+    ALLOWED_ORIGINS.append("*")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_methods=["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Routes
