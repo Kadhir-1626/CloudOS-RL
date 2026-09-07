@@ -113,9 +113,9 @@ class CloudOSProducer:
                 continue
 
             lowered = candidate.lower()
-            if "localhost" in lowered or "127.0.0.1" in lowered:
+            if "localhost" in lowered or "127.0.0.1" in lowered or "192.168." in lowered or "10." in lowered or "172.16." in lowered:
                 logger.warning(
-                    "KafkaProducer._resolve_bootstrap: %s='%s' contains localhost — skipping",
+                    "KafkaProducer._resolve_bootstrap: %s='%s' contains private/local IP — skipping",
                     source_name,
                     candidate,
                 )
@@ -128,13 +128,17 @@ class CloudOSProducer:
             )
             return candidate
 
-        fallback = "192.168.49.1:9092"
-        logger.warning("KafkaProducer: fallback bootstrap %s", fallback)
-        return fallback
+        logger.info("KafkaProducer: no valid bootstrap servers found — Kafka disabled")
+        return ""
 
     def _connect(self) -> None:
         if Producer is None:
             logger.warning("Kafka disabled (confluent_kafka missing)")
+            self._producer = None
+            return
+
+        if not self._servers:
+            logger.info("Kafka disabled — no valid bootstrap servers configured")
             self._producer = None
             return
 

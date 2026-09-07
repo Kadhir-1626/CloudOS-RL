@@ -15,5 +15,7 @@ services:
         value: "models/vec_normalize.pkl"
       - key: CLOUDOS_JWT_SECRET
         generateValue: true
+      - key: CLOUDOS_KAFKA_BOOTSTRAP
+        value: ""
       - key: PYTHON_VERSION
         value: "3.11.0"

@@ -57,7 +57,7 @@ data_pipeline:
   anomaly_threshold_pct: 50.0
 
 kafka:
-  bootstrap_servers: "192.168.49.1:9092"
+  bootstrap_servers: "${CLOUDOS_KAFKA_BOOTSTRAP:-}"
   partitions: 3
   replication: 1
   group_id: cloudos-rl-k8s
