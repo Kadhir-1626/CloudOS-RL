@@ -75,10 +75,14 @@ class CloudOSProducer:
 
         self._producer = None
 
-        logger.info("CloudOSProducer: bootstrap_servers=%s", self._servers)
+        logger.info("CloudOSProducer: bootstrap_servers=%s", self._servers if self._servers else "disabled")
 
-        self._connect()
-        self._ensure_topics()
+        # Only connect if we have valid servers
+        if self._servers:
+            self._connect()
+            self._ensure_topics()
+        else:
+            logger.info("Kafka disabled — no bootstrap servers configured")
 
         self._flush_thread = threading.Thread(
             target=self._flush_loop,
@@ -184,6 +188,10 @@ class CloudOSProducer:
         with self._lock:
             if self._producer is not None:
                 return True
+
+        # Don't attempt reconnect if Kafka is disabled
+        if not self._servers:
+            return False
 
         logger.info("Kafka reconnect attempt")
         self._connect()

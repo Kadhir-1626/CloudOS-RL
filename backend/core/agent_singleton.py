@@ -41,10 +41,21 @@ def _load_config() -> dict:
 
     if p.exists():
         with open(p, encoding="utf-8") as fh:
-            cfg = yaml.safe_load(fh) or {}
+            raw = fh.read()
+        # Expand environment variables in YAML
+        import re
+        def expand_vars(match):
+            var_expr = match.group(1)
+            if ':-' in var_expr:
+                var_name, default = var_expr.split(':-', 1)
+                return os.environ.get(var_name, default)
+            return os.environ.get(var_expr, '')
+        raw = re.sub(r'\$\{([^}]+)\}', expand_vars, raw)
+        cfg = yaml.safe_load(raw) or {}
     else:
         logger.warning("config/settings.yaml not found — using env/default config only")
 
+    # Override with env vars (explicit env vars take precedence)
     model_path = os.environ.get("CLOUDOS_MODEL_PATH", "").strip()
     vecnorm_path = os.environ.get("CLOUDOS_VECNORM_PATH", "").strip()
     kafka_boot = os.environ.get("CLOUDOS_KAFKA_BOOTSTRAP", "").strip()
@@ -57,7 +68,8 @@ def _load_config() -> dict:
         cfg.setdefault("model", {})
         cfg["model"]["vecnorm"] = vecnorm_path
 
-    if kafka_boot:
+    # Always use env var if set (even if empty string = disable Kafka)
+    if "CLOUDOS_KAFKA_BOOTSTRAP" in os.environ:
         cfg.setdefault("kafka", {})
         cfg["kafka"]["bootstrap_servers"] = kafka_boot
 
